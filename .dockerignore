@@ -1,0 +1,13 @@
+# KLUCZOWE dla szybkości builda: bez tego kontekst Dockera zasysa node_modules
+# i .git przy KAŻDYM z trzech równoległych buildów.
+node_modules
+**/node_modules
+.git
+**/.next
+**/dist
+**/.turbo
+coverage
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
