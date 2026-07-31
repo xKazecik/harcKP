@@ -11,6 +11,7 @@ import {
   type CreateOrder,
   type OrderItemType,
 } from '@harc/contracts';
+import type { Prisma } from '@harc/db';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import { AuthorizationService } from '../authorization/authorization.service.js';
 import { InstructorsService } from '../instructors/instructors.service.js';
@@ -187,7 +188,7 @@ export class OrdersService {
 
   /** Skutki specyficzne — wywoływane w transakcji publikacji. */
   private async applyEffect(
-    tx: Parameters<Parameters<PrismaService['$transaction']>[0]>[0],
+    tx: Prisma.TransactionClient,
     item: { id: string; type: string; subjectPersonId: string | null; subjectUnitId: string | null; payload: unknown; effectiveDate: Date },
     order: { unitId: string; issuerPersonId: string },
   ): Promise<void> {

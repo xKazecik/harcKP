@@ -33,7 +33,7 @@ export default function InvitationWizard({ params }: { params: Promise<{ token: 
     const r = await fetch(`${API}/public/invitations/${token}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? JSON.stringify(body) : null,
     });
     if (!r.ok) setError('Coś poszło nie tak — spróbuj ponownie.');
     return r;

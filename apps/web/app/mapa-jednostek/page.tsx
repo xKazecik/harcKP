@@ -21,6 +21,26 @@ interface MapUnit {
   lng: number | null;
 }
 
+/** Minimalne typy MapLibre (UMD z CDN — bez pakietu npm i jego typów). */
+interface MapLibreGL {
+  Map: new (opts: Record<string, unknown>) => { remove(): void };
+  Marker: new (opts: { element: HTMLElement }) => {
+    setLngLat(lnglat: [number, number]): { addTo(map: unknown): void };
+  };
+}
+
+function loadMapLibre(): Promise<MapLibreGL> {
+  const w = window as unknown as { maplibregl?: MapLibreGL };
+  if (w.maplibregl) return Promise.resolve(w.maplibregl);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js';
+    s.onload = () => (w.maplibregl ? resolve(w.maplibregl) : reject(new Error('maplibre missing')));
+    s.onerror = () => reject(new Error('maplibre load failed'));
+    document.head.appendChild(s);
+  });
+}
+
 const PLATFORM_ICONS: Record<string, string> = {
   FACEBOOK: 'ⓕ',
   INSTAGRAM: '◉',
@@ -48,14 +68,12 @@ export default function PublicMapPage() {
     if (!mapRef.current || units.length === 0) return;
     let map: { remove(): void } | undefined;
     (async () => {
-      // MapLibre ładowany z CDN — bez klucza API (§15).
+      // MapLibre (UMD) ładowany tagiem <script> z CDN — bez klucza API (§15).
       const css = document.createElement('link');
       css.rel = 'stylesheet';
       css.href = 'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.css';
       document.head.appendChild(css);
-      const maplibregl = (await import(
-        /* webpackIgnore: true */ 'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js' as string
-      )) as unknown as typeof import('maplibre-gl');
+      const maplibregl = await loadMapLibre();
       const dark = document.documentElement.classList.contains('dark');
       const m = new maplibregl.Map({
         container: mapRef.current as HTMLElement,

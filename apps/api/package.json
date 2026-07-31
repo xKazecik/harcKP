@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
@@ -25,9 +25,10 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
     "@types/express": "^5.0.0",
+    "@types/nodemailer": "^6.4.17",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   }

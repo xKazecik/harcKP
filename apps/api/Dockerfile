@@ -1,15 +1,23 @@
+# syntax=docker/dockerfile:1
 # HARC API — wielostopniowy build (§4)
 FROM node:22-alpine AS base
-RUN corepack enable && apk add --no-cache tini
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+    CI=1 \
+    PNPM_HOME=/pnpm
+# Pinowana wersja pnpm pobierana RAZ w warstwie bazowej (nie przy pnpm install)
+RUN apk add --no-cache tini && corepack enable && corepack prepare pnpm@9.15.4 --activate
 WORKDIR /app
 
 FROM base AS build
-COPY pnpm-workspace.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/domain/package.json packages/domain/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/db/package.json packages/db/
-RUN pnpm install --frozen-lockfile=false
+# Cache store pnpm współdzielony między buildami (BuildKit)
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install --frozen-lockfile --filter @harc/api... --filter @harc/db...
 COPY tsconfig.base.json ./
 COPY packages/domain packages/domain
 COPY packages/contracts packages/contracts

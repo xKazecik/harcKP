@@ -1,14 +1,21 @@
+# syntax=docker/dockerfile:1
 # HARC Web — wielostopniowy build (§4)
 FROM node:22-alpine AS base
-RUN corepack enable && apk add --no-cache tini
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+    CI=1 \
+    PNPM_HOME=/pnpm \
+    NEXT_TELEMETRY_DISABLED=1
+RUN apk add --no-cache tini && corepack enable && corepack prepare pnpm@9.15.4 --activate
 WORKDIR /app
 
 FROM base AS build
-COPY pnpm-workspace.yaml package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/ui/package.json packages/ui/
-RUN pnpm install --frozen-lockfile=false
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install --frozen-lockfile --filter @harc/web...
 COPY tsconfig.base.json ./
 COPY packages/contracts packages/contracts
 COPY packages/ui packages/ui
@@ -17,7 +24,8 @@ RUN pnpm --filter @harc/contracts build && pnpm --filter @harc/web build
 
 FROM node:22-alpine AS runner
 RUN apk add --no-cache tini
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
