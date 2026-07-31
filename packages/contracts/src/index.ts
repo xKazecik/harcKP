@@ -85,6 +85,7 @@ export type InvitePerson = z.infer<typeof InvitePersonSchema>;
 
 export * from './units.js';
 export * from './persons.js';
+export * from './orders.js';
 
 /** Odpowiedź ConfigService (§5) — trzy poziomy konfiguracji. */
 export const SettingSchema = z.object({

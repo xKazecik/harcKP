@@ -522,3 +522,425 @@ model AuditLog {
   @@index([actorPersonId])
   @@index([resourceType, resourceId])
 }
+
+// =============================================================================
+// ETAP 4 — instruktorzy: przeniesienia
+// =============================================================================
+
+enum TransferStatus {
+  PENDING_FROM // czeka na akceptację komendanta chorągwi oddającej
+  PENDING_TO // czeka na akceptację komendanta chorągwi przyjmującej
+  PENDING_SETTLEMENT // czeka na potwierdzenie rozliczenia z funkcji
+  APPROVED
+  REJECTED
+}
+
+/// Przeniesienie przynależności instruktora (§7.3) — proces dwustronny.
+model TransferRequest {
+  id                 String         @id @default(uuid())
+  instructorPersonId String
+  fromChoragiewId    String
+  toChoragiewId      String
+  status             TransferStatus @default(PENDING_FROM)
+  requestedAt        DateTime       @default(now())
+  fromApprovedAt     DateTime?
+  toApprovedAt       DateTime?
+  settlementConfirmedAt DateTime?
+  decidedAt          DateTime?
+  notes              String?
+
+  @@index([instructorPersonId])
+}
+
+// =============================================================================
+// ETAP 5 — autoryzacja: subsydiarność, delegacje, kontrasygnata
+// =============================================================================
+
+enum SubstitutionReason {
+  VACANCY // wakat na funkcji komendanta niższej jednostki
+  ACTING_LEADER // jednostkę prowadzi p.o.
+  UNIT_SUSPENDED // jednostka zawieszona
+  LEADER_SUSPENDED // komendant zawieszony w prawach członka
+}
+
+/// Subsydiarność (§10.3) — jawny grant, NIGDY cichy fallback.
+/// Każde użycie widoczne w rozkazie i dzienniku jednostki.
+model SubstitutionGrant {
+  id               String             @id @default(uuid())
+  grantorUnitId    String // jednostka nadrzędna wykonująca kompetencję
+  targetUnitId     String // jednostka, której kompetencja jest zastrzeżona
+  reason           SubstitutionReason
+  createdByPersonId String
+  orderItemId      String? // ślad w rozkazie
+  validFrom        DateTime           @default(now())
+  validTo          DateTime?
+
+  @@index([targetUnitId, validTo])
+}
+
+/// Delegacja kompetencji (§10.4) — tylko delegable, tylko z własnego zestawu.
+model DelegationGrant {
+  id            String    @id @default(uuid())
+  fromPersonId  String
+  toPersonId    String
+  action        String // ActionKey z macierzy
+  unitId        String // kontekst jednostki, zasięg NIE szerszy niż delegującego
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  revokedAt     DateTime?
+
+  @@index([toPersonId, revokedAt])
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Kontrasygnata opiekuna dla p.o. (§7.4): akcja requiresAdult wykonana przez
+/// p.o. czeka na zatwierdzenie przez guardianInstructorId.
+model PendingApproval {
+  id                 String         @id @default(uuid())
+  actionType         String
+  payload            Json
+  requestedByPersonId String
+  approverPersonId   String
+  status             ApprovalStatus @default(PENDING)
+  createdAt          DateTime       @default(now())
+  decidedAt          DateTime?
+
+  @@index([approverPersonId, status])
+}
+
+// =============================================================================
+// ETAP 6 — rozkazy, dzienniki, kary
+// =============================================================================
+
+enum OrderStatus {
+  DRAFT
+  PUBLISHED
+  CORRECTED
+  REVOKED
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  unitId         String
+  issuerPersonId String
+  number         String // "L. 3/2026" — wzorzec konfigurowalny, licznik per jednostka/rok
+  issuedAt       DateTime
+  place          String
+  status         OrderStatus @default(DRAFT)
+  pdfDriveFileId String?
+  pdfStorageKey  String? // kopia w S3 — obowiązkowa przy publikacji
+  contentText    String?
+  supersededById String?
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+
+  @@unique([unitId, number])
+  @@index([unitId, issuedAt])
+}
+
+model OrderItem {
+  id              String   @id @default(uuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id])
+  section         String // "3.1"
+  type            String // OrderItemType — katalog walidowany Zod w contracts
+  subjectPersonId String?
+  subjectUnitId   String?
+  payload         Json
+  effectiveDate   DateTime // "z dniem ..." — może różnić się od daty rozkazu
+  reverted        Boolean  @default(false)
+
+  @@index([orderId])
+  @@index([subjectPersonId])
+}
+
+/// Dziennik jednostki (§11.2) — każda pozycja rozkazu tworzy wpis.
+model UnitLogbookEntry {
+  id          String   @id @default(uuid())
+  unitId      String
+  occurredAt  DateTime @default(now())
+  entryType   String
+  payload     Json
+  orderItemId String?
+
+  @@index([unitId, occurredAt])
+}
+
+enum DisciplinaryStatus {
+  INITIATED
+  EXPLANATION_REQUESTED
+  SUSPENDED_PENDING
+  PENALTY_ISSUED
+  APPEAL_FILED
+  FINAL
+  EXPIRED // zatarcie
+  ANNULLED // uchylona
+}
+
+enum PenaltyType {
+  UPOMNIENIE
+  NAGANA
+  ZAKAZ_PELNIENIA_FUNKCJI
+  ODEBRANIE_STOPNIA_INSTRUKTORSKIEGO
+  WYKLUCZENIE
+}
+
+/// Kara organizacyjna (§11.3). W czasie apelacji kara NIE podlega wykonaniu.
+/// Zatarcie: rok od prawomocności (zakaz funkcji: rok od końca zakazu) — job.
+model DisciplinaryCase {
+  id                    String             @id @default(uuid())
+  subjectPersonId       String
+  initiatedByPersonId   String // zwierzchnik
+  status                DisciplinaryStatus @default(INITIATED)
+  penaltyType           PenaltyType?
+  /// przy ZAKAZ_PELNIENIA_FUNKCJI: { functions: string[], untilDate: string }
+  penaltyDetails        Json?
+  offenseDescription    String?
+  explanationRequestedAt DateTime?
+  penaltyOrderItemId    String?
+  appealFiledAt         DateTime?
+  appealDeadline        DateTime? // 1 miesiąc od doręczenia
+  finalAt               DateTime?
+  banEndsAt             DateTime?
+  expungedAt            DateTime?
+  createdAt             DateTime           @default(now())
+
+  @@index([subjectPersonId, status])
+  @@index([status, finalAt])
+}
+
+// =============================================================================
+// ETAP 7 — progresja
+// =============================================================================
+
+enum ProgressionKind {
+  RANK // stopień harcerski (OH-y/OH-ek wg branch)
+  BADGE // sprawność
+  ZUCH_STAR // gwiazdka zuchowa
+  INSTRUCTOR_RANK
+}
+
+enum ProgressionStatus {
+  DRAFT // karta tworzona przez harcerza, przed zatwierdzeniem
+  OPEN // OH-ek: otwarta rozkazem; OH-y: zatwierdzona przez drużynowego
+  CLOSED_POSITIVE
+  CLOSED_NEGATIVE // sprawność: z karencją ponownego podejścia
+  DISCONTINUED // OH-ek: umorzona
+  AWARDED // przyznano rozkazem
+  ABANDONED // archiwizacja osoby (§8.3)
+}
+
+/// Karta próby (§12.1). requirementSetVersionId wskazuje KONKRETNĄ wersję
+/// słownika — karta rozpoczęta pod wersją X jest rozliczana wg X (§2).
+model ProgressionInstance {
+  id                      String            @id @default(uuid())
+  personId                String
+  unitId                  String
+  kind                    ProgressionKind
+  branch                  Branch
+  targetCode              String // np. "CWIK", "SAMARYTANKA", "PODHARCMISTRZ"
+  requirementSetVersionId String // DictionaryEntry.id
+  status                  ProgressionStatus @default(DRAFT)
+  guardianPersonId        String? // opiekun próby (HO/HR, stopnie instruktorskie)
+  chapterId               String? // kapituła
+  openedByOrderItemId     String?
+  closedByOrderItemId     String?
+  awardedByOrderItemId    String?
+  startedAt               DateTime          @default(now())
+  deadline                DateTime? // OH-ek: maksymalny czas trwania próby
+  retryBlockedUntil       DateTime? // sprawność: karencja po CLOSED_NEGATIVE
+  requirements            ProgressionRequirement[]
+
+  @@index([personId, status])
+  @@index([unitId, status])
+}
+
+enum RequirementStatus {
+  PENDING
+  SUBMITTED // zgłoszone przez harcerza z komentarzem/załącznikami
+  VERIFIED
+  REPLACED // zadanie zamienione przez drużynowego w trakcie
+}
+
+model ProgressionRequirement {
+  id                 String            @id @default(uuid())
+  instanceId         String
+  instance           ProgressionInstance @relation(fields: [instanceId], references: [id])
+  code               String // kod wymagania ze słownika albo CUSTOM
+  areaCode           String? // OH-y: 1 z 10 obszarów
+  description        String
+  status             RequirementStatus @default(PENDING)
+  evidence           Json? // { comment, attachments: s3Keys[] }
+  submittedAt        DateTime?
+  verifiedByPersonId String?
+  verifiedAt         DateTime?
+  /// Wyczyn (OH-y): wymaga zatwierdzenia warunków bezpieczeństwa (§12.2);
+  /// wycofanie się z wyczynu jest dozwoloną, nieoceniającą akcją.
+  isFeat             Boolean           @default(false)
+  featApprovedByPersonId String?
+
+  @@index([instanceId])
+}
+
+/// Kapituła stopnia (§12.2): min. 3 osoby ze stopniem, w tym instruktor;
+/// przewodniczący kapituły HR ≥ podharcmistrz — walidacja w domenie.
+model Chapter {
+  id                    String   @id @default(uuid())
+  unitId                String
+  kind                  String // np. "HR", "HO", "WEDROWNICZKA"
+  appointedByOrderItemId String?
+  members               ChapterMember[]
+  createdAt             DateTime @default(now())
+}
+
+model ChapterMember {
+  id        String  @id @default(uuid())
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id])
+  personId  String
+  isChair   Boolean @default(false)
+
+  @@unique([chapterId, personId])
+}
+
+// =============================================================================
+// ETAP 8 — spis, plan pracy, kategoryzacja (trzy odrębne procesy)
+// =============================================================================
+
+enum CensusKind {
+  INSTRUCTORS // rok kalendarzowy (§13.1)
+  UNITS // stan na 31.12 (§13.2)
+}
+
+model CensusCampaign {
+  id                 String     @id @default(uuid())
+  kind               CensusKind
+  year               Int
+  announcedAt        DateTime?
+  opensAt            DateTime
+  declarationDeadline DateTime // domyślnie 30.11
+  decisionDeadline   DateTime // domyślnie 31.12
+  createdAt          DateTime   @default(now())
+
+  @@unique([kind, year])
+}
+
+enum CensusRequestedAction {
+  ENROLL // wniosek o wpis na listę
+  LEAVE // urlop
+  END_SERVICE // zakończenie służby
+}
+
+/// Deklaracja spisowa instruktora. computedStatus wylicza automaty §13.1:
+/// brak wniosku w terminie → WSPIERAJACY do czasu decyzji; brak decyzji
+/// w terminie → zgodnie z wnioskiem.
+model InstructorCensusEntry {
+  id                String   @id @default(uuid())
+  campaignId        String
+  personId          String
+  declaredListType  ListType?
+  requestedAction   CensusRequestedAction?
+  declaredAssignment Json?
+  feePaidConfirmed  Boolean  @default(false) // JEDYNY ślad składek (§1.2)
+  submittedAt       DateTime?
+  decidedByPersonId String?
+  decidedAt         DateTime?
+  decisionListType  ListType?
+
+  @@unique([campaignId, personId])
+}
+
+model UnitCensusEntry {
+  id                String   @id @default(uuid())
+  campaignId        String
+  unitId            String
+  headcount         Json // stan liczbowy
+  cardConfirmed     Boolean  @default(false)
+  membersConfirmed  Boolean  @default(false)
+  submittedByPersonId String?
+  submittedAt       DateTime?
+
+  @@unique([campaignId, unitId])
+}
+
+enum WorkPlanStatus {
+  DRAFT
+  SUBMITTED
+  RETURNED_FOR_CORRECTION
+  APPROVED
+  REJECTED
+}
+
+/// Plan pracy (rok harcerski 1.09–31.08, §13.3).
+model WorkPlan {
+  id                String         @id @default(uuid())
+  unitId            String
+  scoutingYear      String // "2026/2027"
+  status            WorkPlanStatus @default(DRAFT)
+  content           Json // cele, kalendarium, obóz, pole służby, deklarowana kategoria
+  submittedAt       DateTime?
+  decidedByPersonId String?
+  decidedAt         DateTime?
+  returnNotes       String?
+  pdfStorageKey     String? // kopia niezmienialna w S3 po zatwierdzeniu
+  pdfDriveFileId    String?
+
+  @@unique([unitId, scoutingYear])
+}
+
+/// Arkusz kategoryzacji (§13.4) — słownik wersjonowany wymagań.
+model CategorizationSheet {
+  id                    String   @id @default(uuid())
+  unitId                String
+  scoutingYear          String
+  requirementSetVersionId String // DictionaryEntry.id arkusza
+  declaredCategory      String // POLOWA | LESNA | PUSZCZANSKA
+  answers               Json
+  visitNotes            String?
+  awardedCategory       String?
+  awardedByOrderItemId  String?
+
+  @@unique([unitId, scoutingYear])
+}
+
+// =============================================================================
+// ETAP 9 — Google, eksporty
+// =============================================================================
+
+model GoogleCalendarChannel {
+  unitId     String   @id
+  calendarId String
+  channelId  String?
+  resourceId String?
+  expiresAt  DateTime?
+  lastSyncAt DateTime?
+}
+
+enum ExportStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+/// Eksport bazy (§18) — asynchroniczny, link wygasa, logowany z zakresem i celem.
+model ExportJob {
+  id                String       @id @default(uuid())
+  requestedByPersonId String
+  scopeUnitId       String? // jednostka wraz z podległymi (filtrowanie hierarchiczne)
+  format            String // CSV | JSON | SQL
+  fields            Json
+  anonymize         Boolean      @default(false)
+  purpose           String // cel — wymagany przy danych osobowych (§17)
+  status            ExportStatus @default(PENDING)
+  storageKey        String?
+  linkExpiresAt     DateTime?
+  createdAt         DateTime     @default(now())
+
+  @@index([requestedByPersonId, createdAt])
+}

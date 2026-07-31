@@ -1,0 +1,10 @@
+{
+  "dictionaryKey": "badges",
+  "description": "Sprawności (§12.3) — zestaw przykładowy do dev; pełny katalog do zaczytania z regulaminów sprawności obu organizacji. Poziomy: 1|2|3|MISTRZOWSKA|OKOLICZNOSCIOWA; relacja sprawność↔zadanie na stopień w payload.countsForRankRequirements.",
+  "sourceDocument": "Regulaminy sprawności ZHR — TODO(regulamin): zaczytać pełny katalog",
+  "entries": [
+    { "code": "OGNIK_1", "version": 1, "labelPl": "ognik*", "validFrom": "2025-09-01", "payload": { "branch": "HARCERZE", "level": 1, "stars": 1, "domain": "puszczaństwo", "requirements": [{ "code": "O1", "description": "Rozpali ogień w trudnych warunkach" }], "countsForRankRequirements": [] } },
+    { "code": "SANITARIUSZ_2", "version": 1, "labelPl": "sanitariusz**", "validFrom": "2025-09-01", "payload": { "branch": "HARCERZE", "level": 2, "stars": 2, "domain": "służba", "requirements": [{ "code": "S1", "description": "Udzieli pierwszej pomocy przy złamaniu" }], "countsForRankRequirements": ["CWIK:zdrowie"] } },
+    { "code": "MALA_GOSPODYNI", "version": 1, "labelPl": "mała gospodyni", "validFrom": "2025-09-01", "payload": { "branch": "HARCERKI", "level": 1, "stars": 1, "domain": "dom", "requirements": [], "countsForRankRequirements": [] } }
+  ]
+}
