@@ -1,0 +1,31 @@
+{
+  "description": "Nomenklatura (§6.4): (unitType, branch, roleKey) → etykieta. Frontend nigdy nie buduje etykiet warunkami if.",
+  "entries": [
+    { "unitType": "ORGANIZACJA", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Naczelnik Harcerzy" },
+    { "unitType": "ORGANIZACJA", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Naczelniczka Harcerek" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Komendant Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Komendantka Chorągwi" },
+    { "unitType": "NAMIESTNICTWO", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Namiestnik" },
+    { "unitType": "NAMIESTNICTWO", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Namiestniczka" },
+    { "unitType": "HUFIEC", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Hufcowy" },
+    { "unitType": "HUFIEC", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Hufcowa" },
+    { "unitType": "ZWIAZEK_DRUZYN", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Komendant Związku Drużyn" },
+    { "unitType": "ZWIAZEK_DRUZYN", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Komendantka Związku Drużyn" },
+    { "unitType": "DRUZYNA", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Drużynowy" },
+    { "unitType": "DRUZYNA", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Drużynowa" },
+    { "unitType": "DRUZYNA", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "Przyboczny" },
+    { "unitType": "DRUZYNA", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "Przyboczna" },
+    { "unitType": "DRUZYNA_WEDROWNICZA", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Drużynowy" },
+    { "unitType": "DRUZYNA_WEDROWNICZA", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Drużynowa" },
+    { "unitType": "GROMADA", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Drużynowy gromady" },
+    { "unitType": "GROMADA", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Drużynowa gromady" },
+    { "unitType": "SAMODZIELNY_ZASTEP", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Zastępowy samodzielnego zastępu" },
+    { "unitType": "SAMODZIELNY_ZASTEP", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Zastępowa samodzielnego zastępu" },
+    { "unitType": "SZCZEP", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Szczepowy" },
+    { "unitType": "SZCZEP", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Szczepowa" },
+    { "unitType": "KRAG_HARCERSTWA_STARSZEGO", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Przewodniczący Kręgu" },
+    { "unitType": "KRAG_HARCERSTWA_STARSZEGO", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Przewodnicząca Kręgu" },
+    { "unitType": "KRAG_INSTRUKTORSKI", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Przewodniczący Kręgu Instruktorskiego" },
+    { "unitType": "KRAG_INSTRUKTORSKI", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Przewodnicząca Kręgu Instruktorskiego" }
+  ]
+}

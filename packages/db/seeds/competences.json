@@ -1,0 +1,115 @@
+{
+  "description": "Macierz kompetencji (§10.2) — zestaw startowy. Zasięg władzy NIE jest funkcją głębokości w drzewie: każda akcja ma własny targetScope i targetTypes z konkretnego przepisu. holderLevel podawany w formie znormalizowanej (bez aliasów statutowych). Pełna macierz powstanie w etapie 5.",
+  "entries": [
+    {
+      "action": "ADMIT_PARTICIPANT",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": false,
+      "requiresMinorProtection": true,
+      "delegable": false,
+      "legalBasis": "Reg. Drużyny Harcerzy — TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPOINT_PATROL_LEADER",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA"],
+      "requiresAdult": false,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Drużyny Harcerzy — wyłączna kompetencja drużynowego; hufcowy NIE mianuje zastępowych ani przybocznych. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "AWARD_RANK",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": false,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Stopni Harcerzy 2025 — HR na wniosek kapituły; gdy drużynowy nie jest HR — hufcowy. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "FOUND_UNIT",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Hufca — hufcowy powołuje i rozwiązuje drużyny. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPOINT_UNIT_LEADER",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Hufca — mianowanie i zwalnianie drużynowych. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPOINT_UNIT_GUARDIAN",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Hufca — powołanie opiekuna drużyny (przy p.o.). TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "FOUND_HUFIEC",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["HUFIEC"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Chorągwi — komendant chorągwi powołuje i rozwiązuje hufce; standardowo NIE powołuje drużyn. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "ADMIT_INSTRUCTOR",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "OWN_BRANCH_ORG",
+      "targetTypes": [],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Służby Instruktorskiej — oś zwierzchnika, nie hierarchia jednostek. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "AWARD_INSTRUCTOR_RANK",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "OWN_BRANCH_ORG",
+      "targetTypes": [],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. stopni instruktorskich — kompetencja per stopień i organizacja w słowniku instructor_ranks; zastrzeżona dla poziomu chorągwi i wyżej. Drużynowy i hufcowy NIE mają tej akcji.",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "ISSUE_ORDER",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA"],
+      "requiresAdult": false,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Drużyny — SAMODZIELNY_ZASTEP celowo wyłączony z targetTypes (twarde wyłączenie ISSUE_ORDER i MAINTAIN_UNIT_LOGBOOK, §6.3).",
+      "validFrom": "2025-09-01"
+    }
+  ]
+}

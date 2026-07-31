@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalacja zależności
+        run: pnpm install
+
+      - name: Walidacja schematu Prisma
+        run: pnpm --filter @harc/db exec prisma validate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
+      - name: Walidacja JSON (realm, seedy)
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('infra/keycloak/realm-export.json','utf8')); console.log('realm OK')"
+          node -e "const fs=require('fs'); for (const f of fs.readdirSync('packages/db/seeds')) { JSON.parse(fs.readFileSync('packages/db/seeds/'+f,'utf8')); console.log(f, 'OK'); }"
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Testy
+        run: pnpm test

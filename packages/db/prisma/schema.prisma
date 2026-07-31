@@ -1,0 +1,524 @@
+// =============================================================================
+// HARC — schemat bazy danych, Etap 1 (fundament)
+//
+// Zawiera: model organizacyjny (§6), osoby i cykl życia konta (§7–§8),
+// instruktorów (§7.3), infrastrukturę słowników wersjonowanych (§2),
+// ustawienia (§5) i audit log (§17).
+//
+// Moduły rozkazów, progresji, spisów i kar rozszerzą ten schemat w kolejnych
+// etapach WYŁĄCZNIE przez migracje.
+//
+// UWAGA: częściowy indeks unikalny na Person.email (§8.4) nie jest wyrażalny
+// w Prisma Schema Language — patrz prisma/sql/partial-indexes.sql, wykonywany
+// w ramach `make migrate`.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enumy wspólne
+// -----------------------------------------------------------------------------
+
+enum Branch {
+  HARCERZE
+  HARCERKI
+}
+
+/// Typy jednostek pionu wychowawczego (§6.1).
+/// NAMIESTNICTWO i ZWIAZEK_DRUZYN to aliasy statutowe — w regułach uprawnień
+/// MUSZĄ być traktowane identycznie jak CHORAGIEW / HUFIEC.
+/// Normalizacja: packages/domain → normalizeUnitLevel(). Nigdy nie duplikuj warunków.
+enum UnitType {
+  ORGANIZACJA
+  CHORAGIEW
+  NAMIESTNICTWO // alias statutowy CHORAGIEW
+  HUFIEC
+  ZWIAZEK_DRUZYN // alias statutowy HUFIEC
+  GROMADA
+  DRUZYNA
+  DRUZYNA_WEDROWNICZA
+  SAMODZIELNY_ZASTEP
+  SZCZEP // jednostka pozioma
+  KRAG_HARCERSTWA_STARSZEGO // jednostka pozioma
+  KRAG_INSTRUKTORSKI // jednostka pozioma
+}
+
+enum UnitStatus {
+  PROBATIONARY
+  ACTIVE
+  SUSPENDED
+  DISSOLVED
+}
+
+enum LocationPrecision {
+  EXACT
+  APPROXIMATE // rozmycie ~500 m (§15)
+}
+
+enum MembershipCategory {
+  UCZESTNIK // zuch, harcerz, wędrownik — w gromadzie lub drużynie (Statut §7)
+  HARCERZ_STARSZY // kategoria członkostwa osoby pełnoletniej — NIE mylić z wędrownikiem
+  INSTRUKTOR
+  CZLONEK_WSPOLDZIALAJACY // bez funkcjonalności (§1.2)
+}
+
+enum PersonStatus {
+  INVITED
+  ACTIVE
+  ARCHIVED
+}
+
+enum MembershipEndReason {
+  WYSTAPIENIE
+  ZWOLNIENIE
+  WYKLUCZENIE
+  SMIERC
+}
+
+enum ArchiveReason {
+  WYSTAPIENIE
+  ZWOLNIENIE
+  WYKLUCZENIE
+  SMIERC
+  BLAD_DANYCH
+  INNY
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum InstructorRank {
+  PRZEWODNIK
+  PODHARCMISTRZ
+  HARCMISTRZ
+}
+
+enum ListType {
+  CZYNNY
+  WSPIERAJACY
+}
+
+enum AssignmentLevel {
+  HUFIEC
+  CHORAGIEW
+  GK
+  WLADZE_NACZELNE
+  POZA_PIONEM_WYCHOWAWCZYM // bez funkcjonalności — wierność danych spisu (§1.3)
+}
+
+// -----------------------------------------------------------------------------
+// Słowniki wersjonowane (§2) — ZASADA NADRZĘDNA
+// -----------------------------------------------------------------------------
+
+/// Nagłówek słownika, np. "rank_requirements_harcerze", "unit_categories",
+/// "order_sections", "social_platforms", "competence_matrix".
+model Dictionary {
+  key         String            @id
+  description String
+  entries     DictionaryEntry[]
+}
+
+/// Pojedynczy, wersjonowany rekord słownikowy.
+/// Karta stopnia rozpoczęta pod wersją X jest rozliczana wg wersji X —
+/// konsumenci przechowują odwołanie do konkretnego DictionaryEntry.id.
+model DictionaryEntry {
+  id             String     @id @default(uuid())
+  dictionaryKey  String
+  dictionary     Dictionary @relation(fields: [dictionaryKey], references: [key])
+  code           String // np. "MLODZIK", "PUSZCZANSKA", "FACEBOOK"
+  version        Int
+  labelPl        String
+  payload        Json // struktura zależna od słownika, walidowana Zod w @harc/contracts
+  validFrom      DateTime
+  validTo        DateTime?
+  sourceDocument String // np. "Regulamin Stopni Harcerzy 2025"
+  sourceClause   String? // np. "ust. 8 lit. e"
+  createdAt      DateTime   @default(now())
+
+  @@unique([dictionaryKey, code, version])
+  @@index([dictionaryKey, validFrom, validTo])
+}
+
+/// Nomenklatura (§6.4): (unitType, branch, roleKey) → etykieta.
+/// Frontend NIGDY nie buduje etykiet warunkami if.
+model Nomenclature {
+  id       String   @id @default(uuid())
+  unitType UnitType
+  branch   Branch
+  roleKey  String // "LEADER", "DEPUTY", "QUARTERMASTER", "CHAPLAIN", ...
+  label    String
+
+  @@unique([unitType, branch, roleKey])
+}
+
+/// Macierz kompetencji (§10.2) — DANE, nie kod.
+/// Zasięg władzy jest inny dla każdej akcji i wynika z konkretnego przepisu.
+model Competence {
+  id                      String    @id @default(uuid())
+  action                  String // ActionKey, np. "FOUND_UNIT", "AWARD_INSTRUCTOR_RANK"
+  holderLevel             UnitType // poziom znormalizowany (bez aliasów)
+  branch                  Branch? // null = obie organizacje
+  targetScope             String // OWN_UNIT | DIRECT_CHILDREN | SUBTREE | OWN_BRANCH_ORG
+  targetTypes             Json // UnitType[]
+  requiresAdult           Boolean   @default(false)
+  requiresMinorProtection Boolean   @default(false)
+  minimumInstructorRank   InstructorRank?
+  delegable               Boolean   @default(false)
+  legalBasis              String // "Reg. Drużyny Harcerzy §11 ust. 2 lit. c"
+  validFrom               DateTime
+  validTo                 DateTime?
+  version                 Int       @default(1)
+
+  @@unique([action, holderLevel, branch, version])
+  @@index([action])
+}
+
+// -----------------------------------------------------------------------------
+// Jednostki (§6)
+// -----------------------------------------------------------------------------
+
+model Unit {
+  id                String            @id @default(uuid())
+  type              UnitType
+  branch            Branch
+  parentId          String?
+  parent            Unit?             @relation("UnitTree", fields: [parentId], references: [id])
+  children          Unit[]            @relation("UnitTree")
+  number            String?
+  localityName      String // "Bydgoska", "Pomorska"
+  properName        String? // "Dęby"
+  patron            String?
+  isProbationary    Boolean           @default(false)
+  probationEndsAt   DateTime?
+  status            UnitStatus        @default(PROBATIONARY)
+  /// Odwołanie do DictionaryEntry słownika "unit_categories" (PROBNA|POLOWA|LESNA|PUSZCZANSKA)
+  categoryId        String?
+  description       String?
+  publicEmail       String?
+  socialLinks       Json? // [{ platform, url }] — ikona z rejestru platform (słownik)
+  meetingPlace      Json? // { lat, lng, address, meetingTimes }
+  locationPrecision LocationPrecision @default(EXACT)
+  isPubliclyVisible Boolean           @default(false)
+  googleCalendarId  String?
+  foundedByOrderId  String? // FK do Order — dodawana w etapie 6 (moduł rozkazów)
+  dissolvedByOrderId String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  memberships     UnitMembership[]
+  leaderships     UnitLeadership[]
+  zastepy         Zastep[]
+  szostki         Szostka[]
+  invitedPersons  Person[]         @relation("InvitedToUnit")
+  groupMembers    UnitGroupMembership[] @relation("GroupMembers")
+  groupedIn       UnitGroupMembership[] @relation("GroupedIn")
+
+  @@index([parentId])
+  @@index([type, branch])
+  @@index([status])
+}
+
+/// Przynależność jednostki do jednostki poziomej (§6.1): szczep grupuje
+/// drużyny/gromady. Grupowanie ≠ podległość — drużyna w szczepie nadal
+/// podlega hufcowi (parentId). Walidacja: domain → canGroupUnit().
+model UnitGroupMembership {
+  id           String    @id @default(uuid())
+  groupUnitId  String
+  group        Unit      @relation("GroupMembers", fields: [groupUnitId], references: [id])
+  memberUnitId String
+  member       Unit      @relation("GroupedIn", fields: [memberUnitId], references: [id])
+  validFrom    DateTime  @default(now())
+  validTo      DateTime?
+
+  @@index([groupUnitId, validTo])
+  @@index([memberUnitId, validTo])
+}
+
+/// Zastęp (§6.3) — trwały, w drużynie albo jako część samodzielnego zastępu.
+model Zastep {
+  id        String   @id @default(uuid())
+  unitId    String
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+
+  members ZastepMembership[]
+
+  @@index([unitId])
+}
+
+/// Przypisanie do zastępu — z historią (validFrom/validTo).
+model ZastepMembership {
+  id        String    @id @default(uuid())
+  zastepId  String
+  zastep    Zastep    @relation(fields: [zastepId], references: [id])
+  personId  String
+  person    Person    @relation(fields: [personId], references: [id])
+  isLeader  Boolean   @default(false) // zastępowy — mianowany rozkazem drużynowego
+  validFrom DateTime  @default(now())
+  validTo   DateTime?
+
+  @@index([zastepId])
+  @@index([personId])
+}
+
+/// Szóstka (§6.3) — NIETRWAŁA grupa zabawowa w gromadzie.
+/// Bez trwałych uprawnień, bez wymogu liczby, zmiany bez rozkazu.
+/// NIE modelować jak zastępu.
+model Szostka {
+  id     String @id @default(uuid())
+  unitId String
+  unit   Unit   @relation(fields: [unitId], references: [id])
+  name   String
+
+  members SzostkaMembership[]
+
+  @@index([unitId])
+}
+
+model SzostkaMembership {
+  id        String  @id @default(uuid())
+  szostkaId String
+  szostka   Szostka @relation(fields: [szostkaId], references: [id])
+  personId  String
+  person    Person  @relation(fields: [personId], references: [id])
+
+  @@unique([szostkaId, personId])
+}
+
+// -----------------------------------------------------------------------------
+// Osoby (§7) i cykl życia konta (§8)
+// -----------------------------------------------------------------------------
+
+model Person {
+  id             String       @id @default(uuid())
+  /// UUID użytkownika w Keycloak; null = profil bez konta (§8.2) —
+  /// pełnoprawny ewidencyjnie, bez możliwości logowania.
+  keycloakUserId String?      @unique
+  status         PersonStatus @default(INVITED)
+  /// Unikalny WYŁĄCZNIE wśród INVITED i ACTIVE — częściowy indeks w
+  /// prisma/sql/partial-indexes.sql (§8.4). Brak @unique tutaj jest celowy.
+  email          String?
+  /// Adres zwolniony przy archiwizacji (§8.3) — BEZ ograniczenia unikalności.
+  historicalEmail String?
+  firstName      String
+  lastName       String
+  birthDate      DateTime?
+  school         String?
+  phone          String?
+  branch         Branch
+  photoUrl       String?
+  crossNumber    String? // numer Krzyża Harcerskiego
+  promiseDate    DateTime? // Przyrzeczenie Harcerskie
+  promiseReceivedByPersonId String?
+  instructorPledgeDate      DateTime? // Zobowiązanie Instruktorskie
+
+  membershipCategory  MembershipCategory   @default(UCZESTNIK)
+  membershipStartedAt DateTime             @default(now())
+  membershipEndedAt   DateTime?
+  membershipEndReason MembershipEndReason?
+
+  themePreference ThemePreference @default(SYSTEM)
+
+  // Archiwizacja (§8.3)
+  archivedAt         DateTime?
+  archivedByPersonId String?
+  archiveReason      ArchiveReason?
+  archiveReasonText  String?
+
+  // Anonimizacja (§8.6)
+  anonymizedAt DateTime?
+
+  invitedToUnitId String?
+  invitedToUnit   Unit?   @relation("InvitedToUnit", fields: [invitedToUnitId], references: [id])
+
+  guardians         Guardian[]
+  instructorProfile InstructorProfile?
+  memberships       UnitMembership[]
+  leaderships       UnitLeadership[]
+  zastepMemberships ZastepMembership[]
+  szostkaMemberships SzostkaMembership[]
+  invitations       Invitation[]       @relation("InvitationPerson")
+  createdInvitations Invitation[]      @relation("InvitationCreator")
+  personalEvents    PersonalEventLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([lastName, firstName])
+  @@index([email])
+}
+
+/// Opiekun prawny (§7.2, ZMIANA decyzją zamawiającego 2026-07-31):
+/// zgoda rodzica NIE blokuje przyjęcia osoby <16 lat — jej brak generuje
+/// przypomnienie dla drużynowego (domain → guardianConsentStatus = MISSING).
+/// consentGivenAt NULL = opiekun zapisany, zgoda jeszcze nieodnotowana.
+model Guardian {
+  id                 String    @id @default(uuid())
+  personId           String
+  person             Person    @relation(fields: [personId], references: [id])
+  fullName           String
+  phone              String
+  email              String?
+  address            String
+  consentGivenAt     DateTime?
+  consentDocumentRef String? // link do Dysku lub klucz S3 — nie skan w bazie
+
+  @@index([personId])
+}
+
+/// Profil instruktorski (§7.3) — model z Regulaminu Służby Instruktorskiej.
+model InstructorProfile {
+  personId                  String          @id
+  person                    Person          @relation(fields: [personId], references: [id])
+  rank                      InstructorRank
+  rankAwardedAt             DateTime
+  listType                  ListType
+  homeChoragiewId           String // Unit.id chorągwi przynależności
+  mainAssignmentLevel       AssignmentLevel
+  mainAssignmentUnitId      String?
+  mainEducationalFunctionId String?
+  onLeaveUntil              DateTime? // urlop instruktorski 1 mies.–2 lata
+  minorProtectionVerifiedAt DateTime?
+  minorProtectionValidUntil DateTime?
+  standardsAcknowledgedAt   DateTime?
+
+  @@index([homeChoragiewId])
+}
+
+/// Członkostwo osoby w jednostce — z historią.
+model UnitMembership {
+  id        String    @id @default(uuid())
+  unitId    String
+  unit      Unit      @relation(fields: [unitId], references: [id])
+  personId  String
+  person    Person    @relation(fields: [personId], references: [id])
+  validFrom DateTime  @default(now())
+  validTo   DateTime?
+  admittedByOrderId String? // FK do OrderItem — etap 6
+
+  @@index([unitId, validTo])
+  @@index([personId, validTo])
+}
+
+/// Prowadzenie jednostki (§7.4) — w tym p.o. z opiekunem.
+model UnitLeadership {
+  id                   String    @id @default(uuid())
+  unitId               String
+  unit                 Unit      @relation(fields: [unitId], references: [id])
+  personId             String
+  person               Person    @relation(fields: [personId], references: [id])
+  /// p.o. — starszy harcerz lub wędrownik. Gdy true: kompetencje requiresAdult
+  /// niedostępne, wymagają kontrasygnaty opiekuna (pendingApproval).
+  isActing             Boolean   @default(false)
+  /// Opiekun drużyny — WYMAGANY gdy isActing (walidacja w domenie).
+  guardianInstructorId String?
+  appointedByOrderId   String? // FK do OrderItem — etap 6; nullable do czasu modułu rozkazów
+  scopeOverrides       Json? // ograniczenia nadane rozkazem hufcowego
+  validFrom            DateTime  @default(now())
+  validTo              DateTime?
+
+  @@index([unitId, validTo])
+  @@index([personId])
+}
+
+// -----------------------------------------------------------------------------
+// Zaproszenia (§8.2)
+// -----------------------------------------------------------------------------
+
+model Invitation {
+  id                String    @id @default(uuid())
+  /// SHA-256 tokenu — token w postaci jawnej istnieje tylko w linku e-mail.
+  tokenHash         String    @unique
+  personId          String
+  person            Person    @relation("InvitationPerson", fields: [personId], references: [id])
+  createdByPersonId String
+  createdBy         Person    @relation("InvitationCreator", fields: [createdByPersonId], references: [id])
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime
+  usedAt            DateTime?
+  revokedAt         DateTime?
+  lastSentAt        DateTime  @default(now()) // cooldown ponownej wysyłki
+
+  @@index([personId])
+  @@index([expiresAt])
+}
+
+// -----------------------------------------------------------------------------
+// Dziennik zdarzeń osobistych — fundament pod rozkazy/progresję (etapy 6–7)
+// -----------------------------------------------------------------------------
+
+model PersonalEventLog {
+  id          String   @id @default(uuid())
+  personId    String
+  person      Person   @relation(fields: [personId], references: [id])
+  eventType   String // np. "ADMITTED", "RANK_AWARDED" — katalog rośnie z etapami
+  occurredAt  DateTime
+  payload     Json
+  orderItemId String? // FK do OrderItem — etap 6
+  createdAt   DateTime @default(now())
+
+  @@index([personId, occurredAt])
+}
+
+// -----------------------------------------------------------------------------
+// Uprawnienia administracyjne (§10.1) — ROOT pochodzi z Keycloak, nie z bazy
+// -----------------------------------------------------------------------------
+
+enum AdminRole {
+  SYSADMIN
+  UNIT_ADMIN
+}
+
+model AdminGrant {
+  id              String    @id @default(uuid())
+  personId        String
+  role            AdminRole
+  unitId          String? // wymagany dla UNIT_ADMIN, null dla SYSADMIN
+  grantedByPersonId String? // null tylko dla nadania bootstrapowego przez ROOT
+  grantedAt       DateTime  @default(now())
+  revokedAt       DateTime?
+
+  @@index([personId, revokedAt])
+}
+
+// -----------------------------------------------------------------------------
+// Ustawienia (§5) — poziom "database"; default w kodzie, env nadrzędny
+// -----------------------------------------------------------------------------
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedByPersonId String?
+}
+
+// -----------------------------------------------------------------------------
+// Audit log (§17, §18) — pełny, niemodyfikowalny (bez UPDATE/DELETE w kodzie)
+// -----------------------------------------------------------------------------
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  occurredAt    DateTime @default(now())
+  actorPersonId String? // null dla operacji systemowych (joby)
+  action        String // np. "PERSON_ARCHIVED", "EMAIL_CHANGED", "SETTING_UPDATED"
+  resourceType  String
+  resourceId    String?
+  payload       Json // stare/nowe wartości, zakres, cel (eksporty danych osobowych)
+  correlationId String?
+
+  @@index([occurredAt])
+  @@index([actorPersonId])
+  @@index([resourceType, resourceId])
+}

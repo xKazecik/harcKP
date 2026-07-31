@@ -1,0 +1,41 @@
+{
+  "dictionaryKey": "instructor_ranks",
+  "description": "Stopnie instruktorskie z kompetencją przyznania per organizacja (§12.4). Kompetencja jest KONFIGUROWALNA — nie zakodowana.",
+  "sourceDocument": "Regulamin Służby Instruktorskiej; Reg. stopni instruktorskich harcerek 2012 — TODO(regulamin): asymetria OH-y/OH-ek przy podharcmistrzyni wymaga potwierdzenia w GK Harcerek",
+  "entries": [
+    {
+      "code": "PRZEWODNIK",
+      "version": 1,
+      "labelPl": "przewodnik / przewodniczka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 1,
+        "awardedBy": { "HARCERZE": "KOMENDANT_CHORAGWI", "HARCERKI": "KOMENDANT_CHORAGWI" },
+        "commission": "KOMISJA_INSTRUKTORSKA"
+      }
+    },
+    {
+      "code": "PODHARCMISTRZ",
+      "version": 1,
+      "labelPl": "podharcmistrz / podharcmistrzyni",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 2,
+        "awardedBy": { "HARCERZE": "KOMENDANT_CHORAGWI", "HARCERKI": "NACZELNICZKA" },
+        "commission": "KOMISJA_INSTRUKTORSKA",
+        "todoRegulamin": "asymetria OH-y/OH-ek do potwierdzenia w GK Harcerek"
+      }
+    },
+    {
+      "code": "HARCMISTRZ",
+      "version": 1,
+      "labelPl": "harcmistrz / harcmistrzyni",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 3,
+        "awardedBy": { "HARCERZE": "NACZELNIK", "HARCERKI": "NACZELNICZKA" },
+        "commission": "KOMISJA_HARCMISTRZOWSKA"
+      }
+    }
+  ]
+}

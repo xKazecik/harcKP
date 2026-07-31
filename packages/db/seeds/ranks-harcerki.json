@@ -1,0 +1,17 @@
+{
+  "dictionaryKey": "ranks_harcerki",
+  "description": "Stopnie harcerek (OH-ek) — ścieżka próbowa z jawnymi stanami. Maksymalne czasy trwania prób i pełne wymagania zostaną doładowane w etapie 7.",
+  "sourceDocument": "Regulamin Stopni Harcerek — TODO(regulamin): potwierdzić aktualną wersję w GK Harcerek",
+  "entries": [
+    { "code": "PROBA_HARCERKI", "version": 1, "labelPl": "próba harcerki", "validFrom": "2025-09-01", "payload": { "order": 0, "maxTrialMonths": null } },
+    { "code": "OCHOTNICZKA", "version": 1, "labelPl": "ochotniczka", "validFrom": "2025-09-01", "payload": { "order": 1, "maxTrialMonths": null } },
+    { "code": "STARSZA_OCHOTNICZKA", "version": 1, "labelPl": "starsza ochotniczka", "validFrom": "2025-09-01", "payload": { "order": 1, "entryPathForAge": 15, "maxTrialMonths": null } },
+    { "code": "TROPICIELKA", "version": 1, "labelPl": "tropicielka", "validFrom": "2025-09-01", "payload": { "order": 2, "maxTrialMonths": null } },
+    { "code": "STARSZA_TROPICIELKA", "version": 1, "labelPl": "starsza tropicielka", "validFrom": "2025-09-01", "payload": { "order": 3, "maxTrialMonths": null } },
+    { "code": "SAMARYTANKA", "version": 1, "labelPl": "samarytanka", "validFrom": "2025-09-01", "payload": { "order": 4, "maxTrialMonths": null } },
+    { "code": "STARSZA_SAMARYTANKA", "version": 1, "labelPl": "starsza samarytanka", "validFrom": "2025-09-01", "payload": { "order": 5, "maxTrialMonths": null } },
+    { "code": "WEDROWNICZKA", "version": 1, "labelPl": "wędrowniczka", "validFrom": "2025-09-01", "payload": { "order": 6, "maxTrialMonths": null } },
+    { "code": "STARSZA_WEDROWNICZKA", "version": 1, "labelPl": "starsza wędrowniczka", "validFrom": "2025-09-01", "payload": { "order": 7, "maxTrialMonths": null } },
+    { "code": "HARCERKA_RZECZYPOSPOLITEJ", "version": 1, "labelPl": "Harcerka Rzeczypospolitej", "validFrom": "2025-09-01", "payload": { "order": 8, "maxTrialMonths": null } }
+  ]
+}

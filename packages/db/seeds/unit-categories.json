@@ -1,0 +1,11 @@
+{
+  "dictionaryKey": "unit_categories",
+  "description": "Kategorie drużyn (§13.4). Arkusze wymagań kategoryzacji zostaną dodane jako osobny słownik w etapie 8.",
+  "sourceDocument": "Zasady kategoryzacji drużyn ZHR — TODO(regulamin): potwierdzić wersję",
+  "entries": [
+    { "code": "PROBNA", "version": 1, "labelPl": "drużyna próbna", "validFrom": "2025-09-01", "payload": { "order": 0, "awardedBy": "HUFCOWY" } },
+    { "code": "POLOWA", "version": 1, "labelPl": "drużyna polowa", "validFrom": "2025-09-01", "payload": { "order": 1, "awardedBy": "HUFCOWY" } },
+    { "code": "LESNA", "version": 1, "labelPl": "drużyna leśna", "validFrom": "2025-09-01", "payload": { "order": 2, "awardedBy": "KOMENDANT_CHORAGWI" } },
+    { "code": "PUSZCZANSKA", "version": 1, "labelPl": "drużyna puszczańska", "validFrom": "2025-09-01", "payload": { "order": 3, "awardedBy": "NACZELNIK" } }
+  ]
+}

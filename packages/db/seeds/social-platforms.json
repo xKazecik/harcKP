@@ -1,0 +1,13 @@
+{
+  "dictionaryKey": "social_platforms",
+  "description": "Rejestr platform społecznościowych wizytówek (§15) — rozszerzalny słownik, ikona per platforma.",
+  "sourceDocument": "Decyzja projektowa HARC",
+  "entries": [
+    { "code": "FACEBOOK", "version": 1, "labelPl": "Facebook", "validFrom": "2025-09-01", "payload": { "icon": "facebook", "urlPattern": "^https://(www\\.)?facebook\\.com/" } },
+    { "code": "INSTAGRAM", "version": 1, "labelPl": "Instagram", "validFrom": "2025-09-01", "payload": { "icon": "instagram", "urlPattern": "^https://(www\\.)?instagram\\.com/" } },
+    { "code": "YOUTUBE", "version": 1, "labelPl": "YouTube", "validFrom": "2025-09-01", "payload": { "icon": "youtube", "urlPattern": "^https://(www\\.)?youtube\\.com/" } },
+    { "code": "TIKTOK", "version": 1, "labelPl": "TikTok", "validFrom": "2025-09-01", "payload": { "icon": "tiktok", "urlPattern": "^https://(www\\.)?tiktok\\.com/" } },
+    { "code": "DISCORD", "version": 1, "labelPl": "Discord", "validFrom": "2025-09-01", "payload": { "icon": "discord", "urlPattern": "^https://discord\\.(gg|com)/" } },
+    { "code": "WWW", "version": 1, "labelPl": "Strona WWW", "validFrom": "2025-09-01", "payload": { "icon": "globe", "urlPattern": "^https?://" } }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "dictionaryKey": "zuchy_gwiazdki",
+  "description": "Gwiazdki zuchowe wg Systemu Tęczy (pięć kolorów = pięć sfer rozwoju). Pełne wymagania w etapie 7.",
+  "sourceDocument": "Regulaminy zuchowe ZHR — TODO(regulamin): potwierdzić wersje dla OH-y i OH-ek",
+  "entries": [
+    { "code": "GWIAZDKA_1", "version": 1, "labelPl": "pierwsza gwiazdka", "validFrom": "2025-09-01", "payload": { "order": 1, "rainbowSpheres": 5 } },
+    { "code": "GWIAZDKA_2", "version": 1, "labelPl": "druga gwiazdka", "validFrom": "2025-09-01", "payload": { "order": 2, "rainbowSpheres": 5 } },
+    { "code": "GWIAZDKA_3", "version": 1, "labelPl": "trzecia gwiazdka", "validFrom": "2025-09-01", "payload": { "order": 3, "rainbowSpheres": 5 } }
+  ]
+}

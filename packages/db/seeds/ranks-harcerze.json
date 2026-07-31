@@ -1,0 +1,79 @@
+{
+  "dictionaryKey": "ranks_harcerze",
+  "description": "Stopnie harcerzy (OH-y) — przedziały wiekowe i szkielet wymagań. Pełne zestawy wymagań (10 obszarów, sprawności, próby końcowe) zostaną doładowane w etapie 7 z regulaminu.",
+  "sourceDocument": "Regulamin Stopni Harcerzy 2025",
+  "entries": [
+    {
+      "code": "MLODZIK",
+      "version": 1,
+      "labelPl": "młodzik",
+      "validFrom": "2025-09-01",
+      "sourceClause": "TODO(regulamin): uzupełnić ustęp",
+      "payload": {
+        "order": 1,
+        "ageMin": 11,
+        "ageMax": 13,
+        "finalTrialRequired": true,
+        "guardianRequired": false
+      }
+    },
+    {
+      "code": "WYWIADOWCA",
+      "version": 1,
+      "labelPl": "wywiadowca",
+      "validFrom": "2025-09-01",
+      "sourceClause": "TODO(regulamin): uzupełnić ustęp",
+      "payload": {
+        "order": 2,
+        "ageMin": 12,
+        "ageMax": 14,
+        "finalTrialRequired": true,
+        "guardianRequired": false
+      }
+    },
+    {
+      "code": "CWIK",
+      "version": 1,
+      "labelPl": "ćwik",
+      "validFrom": "2025-09-01",
+      "sourceClause": "TODO(regulamin): uzupełnić ustęp",
+      "payload": {
+        "order": 3,
+        "ageMin": 13,
+        "ageMax": 16,
+        "finalTrialRequired": true,
+        "finalTrialMinAgeYears": 14,
+        "guardianRequired": false
+      }
+    },
+    {
+      "code": "HARCERZ_ORLI",
+      "version": 1,
+      "labelPl": "Harcerz Orli",
+      "validFrom": "2025-09-01",
+      "sourceClause": "TODO(regulamin): uzupełnić ustęp",
+      "payload": {
+        "order": 4,
+        "ageMin": 15,
+        "ageMax": 18,
+        "finalTrialRequired": false,
+        "guardianRequired": true
+      }
+    },
+    {
+      "code": "HARCERZ_RZECZYPOSPOLITEJ",
+      "version": 1,
+      "labelPl": "Harcerz Rzeczypospolitej",
+      "validFrom": "2025-09-01",
+      "sourceClause": "TODO(regulamin): uzupełnić ustęp",
+      "payload": {
+        "order": 5,
+        "ageMin": 17,
+        "ageMax": null,
+        "finalTrialRequired": false,
+        "guardianRequired": true,
+        "chapterChairMinInstructorRank": "PODHARCMISTRZ"
+      }
+    }
+  ]
+}

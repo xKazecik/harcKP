@@ -1,0 +1,15 @@
+{
+  "dictionaryKey": "order_sections",
+  "description": "Domyślny szablon sekcji rozkazu (§11.1) — struktura zwyczajowa, edytowalna per jednostka.",
+  "sourceDocument": "Zwyczaj ZHR (struktura punktów rozkazu nie jest regulaminowa)",
+  "entries": [
+    { "code": "S1", "version": 1, "labelPl": "Zarządzenia i informacje", "validFrom": "2025-09-01", "payload": { "order": 1 } },
+    { "code": "S2", "version": 1, "labelPl": "Wyjątki z rozkazów władz zwierzchnich", "validFrom": "2025-09-01", "payload": { "order": 2 } },
+    { "code": "S3", "version": 1, "labelPl": "Zmiany organizacyjne", "validFrom": "2025-09-01", "payload": { "order": 3 } },
+    { "code": "S4", "version": 1, "labelPl": "Mianowania i zwolnienia", "validFrom": "2025-09-01", "payload": { "order": 4 } },
+    { "code": "S5", "version": 1, "labelPl": "Stopnie i sprawności", "validFrom": "2025-09-01", "payload": { "order": 5 } },
+    { "code": "S6", "version": 1, "labelPl": "Pochwały i wyróżnienia", "validFrom": "2025-09-01", "payload": { "order": 6 } },
+    { "code": "S7", "version": 1, "labelPl": "Kary", "validFrom": "2025-09-01", "payload": { "order": 7 } },
+    { "code": "S8", "version": 1, "labelPl": "Sprawy różne", "validFrom": "2025-09-01", "payload": { "order": 8 } }
+  ]
+}
