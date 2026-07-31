@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Wersja pnpm pochodzi z pola "packageManager" w package.json —
+      # nie podawaj jej tutaj drugi raz (ERR_PNPM_BAD_PM_VERSION).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
@@ -21,7 +21,7 @@ jobs:
           cache: pnpm
 
       - name: Instalacja zależności
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Walidacja schematu Prisma
         run: pnpm --filter @harc/db exec prisma validate
