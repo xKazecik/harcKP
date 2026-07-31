@@ -4,6 +4,13 @@ import { UnitsController } from './interface/units/units.controller';
 import { NomenclatureController } from './interface/nomenclature/nomenclature.controller';
 import { PersonsController } from './interface/persons/persons.controller';
 import { InvitationsController } from './interface/persons/invitations.controller';
+import {
+  InstructorsController,
+  OrdersController,
+  PlanningController,
+  ProgressionController,
+} from './interface/modules.controller';
+import { AdminController, PublicMapController } from './interface/admin.controller';
 import { ConfigService } from './infrastructure/config/config.service';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { PrismaUnitRepository } from './infrastructure/units/prisma-unit.repository';
@@ -28,13 +35,18 @@ import { InvitationAdminUseCase } from './application/persons/invitation-admin.u
 import { ArchivePersonUseCase } from './application/persons/archive-person.usecase';
 import { RestorePersonUseCase } from './application/persons/restore-person.usecase';
 import { PersonProfileUseCase } from './application/persons/person-profile.usecase';
+import { InstructorsService } from './application/instructors/instructors.service';
+import { AuthorizationService } from './application/authorization/authorization.service';
+import { OrdersService } from './application/orders/orders.service';
+import { ProgressionService } from './application/progression/progression.service';
+import {
+  CategorizationService,
+  InstructorCensusService,
+  UnitCensusService,
+  WorkPlanService,
+} from './application/planning/planning.services';
 
-/**
- * Moduł główny API — etapy 1–3.
- *
- * @remarks Wiązanie portów do implementacji odbywa się wyłącznie tutaj
- * (Clean Architecture, §3).
- */
+/** Moduł główny API HARC — etapy 1–12 (§3, Clean Architecture). */
 @Module({
   controllers: [
     HealthController,
@@ -42,6 +54,12 @@ import { PersonProfileUseCase } from './application/persons/person-profile.useca
     NomenclatureController,
     PersonsController,
     InvitationsController,
+    InstructorsController,
+    OrdersController,
+    ProgressionController,
+    PlanningController,
+    AdminController,
+    PublicMapController,
   ],
   providers: [
     PrismaService,
@@ -61,6 +79,14 @@ import { PersonProfileUseCase } from './application/persons/person-profile.useca
     ArchivePersonUseCase,
     RestorePersonUseCase,
     PersonProfileUseCase,
+    InstructorsService,
+    AuthorizationService,
+    OrdersService,
+    ProgressionService,
+    InstructorCensusService,
+    UnitCensusService,
+    WorkPlanService,
+    CategorizationService,
   ],
   exports: [ConfigService],
 })

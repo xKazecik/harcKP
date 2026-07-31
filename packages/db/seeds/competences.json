@@ -110,6 +110,105 @@
       "delegable": false,
       "legalBasis": "Reg. Drużyny — SAMODZIELNY_ZASTEP celowo wyłączony z targetTypes (twarde wyłączenie ISSUE_ORDER i MAINTAIN_UNIT_LOGBOOK, §6.3).",
       "validFrom": "2025-09-01"
+    },
+    {
+      "action": "ISSUE_ORDER",
+      "holderLevel": "HUFIEC",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["HUFIEC"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Hufca — TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "ISSUE_ORDER",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["CHORAGIEW"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Chorągwi — TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "DISCIPLINE_INSTRUCTOR",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "OWN_BRANCH_ORG",
+      "targetTypes": [],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Służby Instruktorskiej — kara wymierzana przez ZWIERZCHNIKA (oś getSupervisor, nie hierarchia jednostek). TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPROVE_WORK_PLAN",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "GROMADA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": true,
+      "legalBasis": "Reg. Hufca — zatwierdzanie planów pracy jednostek podległych (§13.3). Delegowalna (np. na członka komendy).",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "AWARD_CATEGORY",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Zasady kategoryzacji — hufcowy przyznaje kategorię POLOWA (§13.4).",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "AWARD_CATEGORY",
+      "holderLevel": "CHORAGIEW",
+      "targetScope": "SUBTREE",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Zasady kategoryzacji — komendant chorągwi przyznaje kategorię LESNA (§13.4).",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "AWARD_CATEGORY",
+      "holderLevel": "ORGANIZACJA",
+      "targetScope": "SUBTREE",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Zasady kategoryzacji — Naczelnik przyznaje kategorię PUSZCZANSKA (§13.4).",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPOINT_CHAPTER",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA"],
+      "requiresAdult": false,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Stopni — kapitułę powołuje drużynowy / hufcowy / komendant chorągwi (§11.2). TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
+      "action": "APPOINT_CHAPTER",
+      "holderLevel": "HUFIEC",
+      "targetScope": "DIRECT_CHILDREN",
+      "targetTypes": ["DRUZYNA", "DRUZYNA_WEDROWNICZA", "SAMODZIELNY_ZASTEP"],
+      "requiresAdult": true,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "Reg. Stopni (§11.2). TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
     }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "dictionaryKey": "categorization_sheets",
+  "description": "Arkusz wymagań kategoryzacji (§13.4) — słownik wersjonowany.",
+  "sourceDocument": "Zasady kategoryzacji drużyn — TODO(regulamin): zaczytać pełny arkusz",
+  "entries": [
+    {
+      "code": "SHEET",
+      "version": 1,
+      "labelPl": "Arkusz kategoryzacji drużyn",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "sections": [
+          { "code": "OBOZ", "label": "Obóz drużyny", "maxPoints": 20 },
+          { "code": "ZASTEPY", "label": "System zastępowy", "maxPoints": 20 },
+          { "code": "STOPNIE", "label": "Progresja stopni", "maxPoints": 20 },
+          { "code": "PLAN", "label": "Plan pracy i jego realizacja", "maxPoints": 20 },
+          { "code": "SLUZBA", "label": "Pole służby", "maxPoints": 20 }
+        ],
+        "thresholds": { "POLOWA": 40, "LESNA": 65, "PUSZCZANSKA": 85 }
+      }
+    }
+  ]
+}

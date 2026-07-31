@@ -156,6 +156,8 @@ async function main(): Promise<void> {
     'unit-categories.json',
     'order-sections.json',
     'social-platforms.json',
+    'badges.json',
+    'categorization-sheets.json',
   ];
   let total = 0;
   for (const f of dictionaryFiles) {
