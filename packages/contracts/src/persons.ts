@@ -2,7 +2,7 @@
  * Kontrakty cyklu życia konta (§8) i osób (§7).
  */
 import { z } from 'zod';
-import { BranchSchema } from './index.js';
+import { BranchSchema } from './common.js';
 
 /** Krok 2 kreatora zaproszenia — uzupełnienie profilu (§8.2). */
 export const CompleteProfileSchema = z.object({

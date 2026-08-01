@@ -12,7 +12,7 @@
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy && prisma db execute --file prisma/sql/partial-indexes.sql",
+    "migrate:deploy": "prisma migrate deploy && prisma db execute --schema prisma/schema.prisma --file prisma/sql/partial-indexes.sql",
     "seed": "tsx prisma/seed.ts"
   },
   "prisma": {

@@ -2,7 +2,7 @@
  * Kontrakty modułu jednostek (§6) — walidacja na granicach API i formularzy.
  */
 import { z } from 'zod';
-import { BranchSchema, UnitStatusSchema, UnitTypeSchema } from './index.js';
+import { BranchSchema, UnitStatusSchema, UnitTypeSchema } from './common.js';
 
 export const LocationPrecisionSchema = z.enum(['EXACT', 'APPROXIMATE']);
 export type LocationPrecision = z.infer<typeof LocationPrecisionSchema>;

@@ -9,7 +9,7 @@ dev:
 ## Migracje + indeksy częściowe (nie wyrażalne w Prisma) + generacja klienta
 migrate:
 	pnpm --filter @harc/db exec prisma migrate dev
-	pnpm --filter @harc/db exec prisma db execute --file prisma/sql/partial-indexes.sql
+	pnpm --filter @harc/db exec prisma db execute --schema prisma/schema.prisma --file prisma/sql/partial-indexes.sql
 	pnpm --filter @harc/db exec prisma generate
 
 ## Idempotentny seed słowników (§2)
