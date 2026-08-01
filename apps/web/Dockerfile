@@ -31,6 +31,9 @@ ENV NODE_ENV=production \
 WORKDIR /app
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
+# Dokumentacja (§18) jest renderowana wewnątrz aplikacji, więc katalog docs/
+# musi znaleźć się w warstwie runtime. Serwer standalone startuje z /app.
+COPY docs ./docs
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s \

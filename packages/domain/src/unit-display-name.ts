@@ -59,7 +59,9 @@ function typeLabel(type: UnitType, branch: Branch): string {
 export function unitDisplayName(parts: UnitNameParts): string {
   const segments: string[] = [];
   if (parts.number) segments.push(parts.number);
-  segments.push(parts.localityName);
+  // ORGANIZACJA nie ma przymiotnika miejscowego — etykieta typu jest pełną
+  // nazwą jednostki, więc pusty localityName musi zniknąć z wyniku.
+  if (parts.localityName) segments.push(parts.localityName);
   segments.push(typeLabel(parts.type, parts.branch));
   if (parts.properName) segments.push(`„${parts.properName}”`);
   if (parts.patron) segments.push(`im. ${parts.patron}`);

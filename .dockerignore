@@ -7,7 +7,12 @@ node_modules
 **/dist
 **/.turbo
 coverage
+# Wzorzec MUSI mieć **/: bez tego Docker dopasowuje tylko poziom główny, więc
+# packages/*/tsconfig.tsbuildinfo trafia do obrazu. Przy jednocześnie
+# wykluczonym **/dist tsc uznaje wynik za aktualny i NIE emituje plików —
+# build kończy się sukcesem, a dist nie powstaje.
 *.tsbuildinfo
+**/*.tsbuildinfo
 .env
 .env.*
 !.env.example

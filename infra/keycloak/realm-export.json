@@ -309,7 +309,7 @@
       "lastName": "Dev",
       "email": "root@harc.local",
       "credentials": [
-        { "type": "password", "value": "HarcDevRoot123!", "temporary": false }
+        { "type": "password", "value": "HarcDev2026!Root", "temporary": false }
       ],
       "groups": ["/zhr_sysadmins"]
     },

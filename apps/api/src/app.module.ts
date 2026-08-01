@@ -11,6 +11,7 @@ import {
   ProgressionController,
 } from './interface/modules.controller';
 import { AdminController, PublicMapController } from './interface/admin.controller';
+import { DirectoryController } from './interface/directory.controller';
 import { ConfigService } from './infrastructure/config/config.service';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
 import { PrismaUnitRepository } from './infrastructure/units/prisma-unit.repository';
@@ -60,6 +61,7 @@ import {
     PlanningController,
     AdminController,
     PublicMapController,
+    DirectoryController,
   ],
   providers: [
     PrismaService,

@@ -13,7 +13,9 @@
     "prisma:generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy && prisma db execute --schema prisma/schema.prisma --file prisma/sql/partial-indexes.sql",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "bootstrap": "tsx prisma/bootstrap.ts",
+    "demo": "tsx prisma/demo.ts"
   },
   "prisma": {
     "schema": "prisma/schema.prisma",

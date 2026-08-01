@@ -3,15 +3,436 @@
   "description": "Stopnie harcerek (OH-ek) — ścieżka próbowa z jawnymi stanami. Maksymalne czasy trwania prób i pełne wymagania zostaną doładowane w etapie 7.",
   "sourceDocument": "Regulamin Stopni Harcerek — TODO(regulamin): potwierdzić aktualną wersję w GK Harcerek",
   "entries": [
-    { "code": "PROBA_HARCERKI", "version": 1, "labelPl": "próba harcerki", "validFrom": "2025-09-01", "payload": { "order": 0, "maxTrialMonths": null } },
-    { "code": "OCHOTNICZKA", "version": 1, "labelPl": "ochotniczka", "validFrom": "2025-09-01", "payload": { "order": 1, "maxTrialMonths": null } },
-    { "code": "STARSZA_OCHOTNICZKA", "version": 1, "labelPl": "starsza ochotniczka", "validFrom": "2025-09-01", "payload": { "order": 1, "entryPathForAge": 15, "maxTrialMonths": null } },
-    { "code": "TROPICIELKA", "version": 1, "labelPl": "tropicielka", "validFrom": "2025-09-01", "payload": { "order": 2, "maxTrialMonths": null } },
-    { "code": "STARSZA_TROPICIELKA", "version": 1, "labelPl": "starsza tropicielka", "validFrom": "2025-09-01", "payload": { "order": 3, "maxTrialMonths": null } },
-    { "code": "SAMARYTANKA", "version": 1, "labelPl": "samarytanka", "validFrom": "2025-09-01", "payload": { "order": 4, "maxTrialMonths": null } },
-    { "code": "STARSZA_SAMARYTANKA", "version": 1, "labelPl": "starsza samarytanka", "validFrom": "2025-09-01", "payload": { "order": 5, "maxTrialMonths": null } },
-    { "code": "WEDROWNICZKA", "version": 1, "labelPl": "wędrowniczka", "validFrom": "2025-09-01", "payload": { "order": 6, "maxTrialMonths": null } },
-    { "code": "STARSZA_WEDROWNICZKA", "version": 1, "labelPl": "starsza wędrowniczka", "validFrom": "2025-09-01", "payload": { "order": 7, "maxTrialMonths": null } },
-    { "code": "HARCERKA_RZECZYPOSPOLITEJ", "version": 1, "labelPl": "Harcerka Rzeczypospolitej", "validFrom": "2025-09-01", "payload": { "order": 8, "maxTrialMonths": null } }
+    {
+      "code": "PROBA_HARCERKI",
+      "version": 1,
+      "labelPl": "próba harcerki",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 0,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "PROBA_HARCERKI_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień próba harcerki."
+          },
+          {
+            "code": "PROBA_HARCERKI_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień próba harcerki."
+          },
+          {
+            "code": "PROBA_HARCERKI_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień próba harcerki."
+          },
+          {
+            "code": "PROBA_HARCERKI_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień próba harcerki."
+          },
+          {
+            "code": "PROBA_HARCERKI_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień próba harcerki."
+          },
+          {
+            "code": "PROBA_HARCERKI_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień próba harcerki."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "OCHOTNICZKA",
+      "version": 1,
+      "labelPl": "ochotniczka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 1,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "OCHOTNICZKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień ochotniczka."
+          },
+          {
+            "code": "OCHOTNICZKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień ochotniczka."
+          },
+          {
+            "code": "OCHOTNICZKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień ochotniczka."
+          },
+          {
+            "code": "OCHOTNICZKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień ochotniczka."
+          },
+          {
+            "code": "OCHOTNICZKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień ochotniczka."
+          },
+          {
+            "code": "OCHOTNICZKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień ochotniczka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "STARSZA_OCHOTNICZKA",
+      "version": 1,
+      "labelPl": "starsza ochotniczka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 1,
+        "entryPathForAge": 15,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "STARSZA_OCHOTNICZKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień starsza ochotniczka."
+          },
+          {
+            "code": "STARSZA_OCHOTNICZKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień starsza ochotniczka."
+          },
+          {
+            "code": "STARSZA_OCHOTNICZKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień starsza ochotniczka."
+          },
+          {
+            "code": "STARSZA_OCHOTNICZKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień starsza ochotniczka."
+          },
+          {
+            "code": "STARSZA_OCHOTNICZKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień starsza ochotniczka."
+          },
+          {
+            "code": "STARSZA_OCHOTNICZKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień starsza ochotniczka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "TROPICIELKA",
+      "version": 1,
+      "labelPl": "tropicielka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 2,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "TROPICIELKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień tropicielka."
+          },
+          {
+            "code": "TROPICIELKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień tropicielka."
+          },
+          {
+            "code": "TROPICIELKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień tropicielka."
+          },
+          {
+            "code": "TROPICIELKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień tropicielka."
+          },
+          {
+            "code": "TROPICIELKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień tropicielka."
+          },
+          {
+            "code": "TROPICIELKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień tropicielka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "STARSZA_TROPICIELKA",
+      "version": 1,
+      "labelPl": "starsza tropicielka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 3,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "STARSZA_TROPICIELKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień starsza tropicielka."
+          },
+          {
+            "code": "STARSZA_TROPICIELKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień starsza tropicielka."
+          },
+          {
+            "code": "STARSZA_TROPICIELKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień starsza tropicielka."
+          },
+          {
+            "code": "STARSZA_TROPICIELKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień starsza tropicielka."
+          },
+          {
+            "code": "STARSZA_TROPICIELKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień starsza tropicielka."
+          },
+          {
+            "code": "STARSZA_TROPICIELKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień starsza tropicielka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "SAMARYTANKA",
+      "version": 1,
+      "labelPl": "samarytanka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 4,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "SAMARYTANKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień samarytanka."
+          },
+          {
+            "code": "SAMARYTANKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień samarytanka."
+          },
+          {
+            "code": "SAMARYTANKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień samarytanka."
+          },
+          {
+            "code": "SAMARYTANKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień samarytanka."
+          },
+          {
+            "code": "SAMARYTANKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień samarytanka."
+          },
+          {
+            "code": "SAMARYTANKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień samarytanka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "STARSZA_SAMARYTANKA",
+      "version": 1,
+      "labelPl": "starsza samarytanka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 5,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "STARSZA_SAMARYTANKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień starsza samarytanka."
+          },
+          {
+            "code": "STARSZA_SAMARYTANKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień starsza samarytanka."
+          },
+          {
+            "code": "STARSZA_SAMARYTANKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień starsza samarytanka."
+          },
+          {
+            "code": "STARSZA_SAMARYTANKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień starsza samarytanka."
+          },
+          {
+            "code": "STARSZA_SAMARYTANKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień starsza samarytanka."
+          },
+          {
+            "code": "STARSZA_SAMARYTANKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień starsza samarytanka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "WEDROWNICZKA",
+      "version": 1,
+      "labelPl": "wędrowniczka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 6,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "WEDROWNICZKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień wędrowniczka."
+          },
+          {
+            "code": "WEDROWNICZKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień wędrowniczka."
+          },
+          {
+            "code": "WEDROWNICZKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień wędrowniczka."
+          },
+          {
+            "code": "WEDROWNICZKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień wędrowniczka."
+          },
+          {
+            "code": "WEDROWNICZKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień wędrowniczka."
+          },
+          {
+            "code": "WEDROWNICZKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień wędrowniczka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "STARSZA_WEDROWNICZKA",
+      "version": 1,
+      "labelPl": "starsza wędrowniczka",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 7,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "STARSZA_WEDROWNICZKA_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień starsza wędrowniczka."
+          },
+          {
+            "code": "STARSZA_WEDROWNICZKA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień starsza wędrowniczka."
+          },
+          {
+            "code": "STARSZA_WEDROWNICZKA_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień starsza wędrowniczka."
+          },
+          {
+            "code": "STARSZA_WEDROWNICZKA_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień starsza wędrowniczka."
+          },
+          {
+            "code": "STARSZA_WEDROWNICZKA_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień starsza wędrowniczka."
+          },
+          {
+            "code": "STARSZA_WEDROWNICZKA_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień starsza wędrowniczka."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    },
+    {
+      "code": "HARCERKA_RZECZYPOSPOLITEJ",
+      "version": 1,
+      "labelPl": "Harcerka Rzeczypospolitej",
+      "validFrom": "2025-09-01",
+      "payload": {
+        "order": 8,
+        "maxTrialMonths": null,
+        "requirements": [
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_POSTAWA",
+            "area": "POSTAWA",
+            "description": "Postawa harcerska i realizacja Prawa Harcerskiego w codziennym życiu — na stopień Harcerka Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Podjęta i wykonana służba — na stopień Harcerka Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_SPRAWNOSCI",
+            "area": "SPRAWNOSCI",
+            "description": "Zdobyte sprawności wymagane dla stopnia — na stopień Harcerka Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_TECHNIKI",
+            "area": "TECHNIKI",
+            "description": "Opanowane techniki harcerskie — na stopień Harcerka Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_ZASTEP",
+            "area": "ZASTEP",
+            "description": "Aktywny udział w pracy zastępu i drużyny — na stopień Harcerka Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERKA_RZECZYPOSPOLITEJ_ZADANIE",
+            "area": "ZADANIE",
+            "description": "Zadanie indywidualne uzgodnione z opiekunką próby — na stopień Harcerka Rzeczypospolitej."
+          }
+        ],
+        "requirementsArePlaceholder": true
+      }
+    }
   ]
 }

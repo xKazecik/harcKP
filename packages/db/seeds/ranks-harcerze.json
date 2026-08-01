@@ -1,6 +1,6 @@
 {
   "dictionaryKey": "ranks_harcerze",
-  "description": "Stopnie harcerzy (OH-y) — przedziały wiekowe i szkielet wymagań. Pełne zestawy wymagań (10 obszarów, sprawności, próby końcowe) zostaną doładowane w etapie 7 z regulaminu.",
+  "description": "Stopnie harcerzy (OH-y) — przedziały wiekowe i szkielet wymagań. Szkielet wymagań jest PLACEHOLDEREM (payload.requirementsArePlaceholder=true) — do zastąpienia dosłownym brzmieniem regulaminu jako NOWA wersja wpisu, nigdy nadpisaniem istniejącej (§2).",
   "sourceDocument": "Regulamin Stopni Harcerzy 2025",
   "entries": [
     {
@@ -14,7 +14,66 @@
         "ageMin": 11,
         "ageMax": 13,
         "finalTrialRequired": true,
-        "guardianRequired": false
+        "guardianRequired": false,
+        "requirements": [
+          {
+            "code": "MLODZIK_BOG",
+            "area": "BOG",
+            "description": "Zadanie z obszaru „Bóg i duchowość” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_CHARAKTER",
+            "area": "CHARAKTER",
+            "description": "Zadanie z obszaru „siła charakteru” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_ROZUM",
+            "area": "ROZUM",
+            "description": "Zadanie z obszaru „rozum” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_ZDROWIE",
+            "area": "ZDROWIE",
+            "description": "Zadanie z obszaru „zdrowie” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_OJCZYZNA",
+            "area": "OJCZYZNA",
+            "description": "Zadanie z obszaru „małe ojczyzny i Polska” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_RODZINA",
+            "area": "RODZINA",
+            "description": "Zadanie z obszaru „rodzina” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Zadanie z obszaru „służba” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_PASJE",
+            "area": "PASJE",
+            "description": "Zadanie z obszaru „pasje” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_KULTURA",
+            "area": "KULTURA",
+            "description": "Zadanie z obszaru „kultura” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_PRZYRODA",
+            "area": "PRZYRODA",
+            "description": "Zadanie z obszaru „przyroda” uzgodnione z drużynowym na stopień młodzik."
+          },
+          {
+            "code": "MLODZIK_PROBA_KONCOWA",
+            "area": "PROBA_KONCOWA",
+            "description": "Próba końcowa na stopień młodzik.",
+            "isFeat": true
+          }
+        ],
+        "requirementsArePlaceholder": true
       }
     },
     {
@@ -28,7 +87,66 @@
         "ageMin": 12,
         "ageMax": 14,
         "finalTrialRequired": true,
-        "guardianRequired": false
+        "guardianRequired": false,
+        "requirements": [
+          {
+            "code": "WYWIADOWCA_BOG",
+            "area": "BOG",
+            "description": "Zadanie z obszaru „Bóg i duchowość” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_CHARAKTER",
+            "area": "CHARAKTER",
+            "description": "Zadanie z obszaru „siła charakteru” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_ROZUM",
+            "area": "ROZUM",
+            "description": "Zadanie z obszaru „rozum” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_ZDROWIE",
+            "area": "ZDROWIE",
+            "description": "Zadanie z obszaru „zdrowie” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_OJCZYZNA",
+            "area": "OJCZYZNA",
+            "description": "Zadanie z obszaru „małe ojczyzny i Polska” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_RODZINA",
+            "area": "RODZINA",
+            "description": "Zadanie z obszaru „rodzina” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Zadanie z obszaru „służba” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_PASJE",
+            "area": "PASJE",
+            "description": "Zadanie z obszaru „pasje” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_KULTURA",
+            "area": "KULTURA",
+            "description": "Zadanie z obszaru „kultura” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_PRZYRODA",
+            "area": "PRZYRODA",
+            "description": "Zadanie z obszaru „przyroda” uzgodnione z drużynowym na stopień wywiadowca."
+          },
+          {
+            "code": "WYWIADOWCA_PROBA_KONCOWA",
+            "area": "PROBA_KONCOWA",
+            "description": "Próba końcowa na stopień wywiadowca.",
+            "isFeat": true
+          }
+        ],
+        "requirementsArePlaceholder": true
       }
     },
     {
@@ -43,7 +161,66 @@
         "ageMax": 16,
         "finalTrialRequired": true,
         "finalTrialMinAgeYears": 14,
-        "guardianRequired": false
+        "guardianRequired": false,
+        "requirements": [
+          {
+            "code": "CWIK_BOG",
+            "area": "BOG",
+            "description": "Zadanie z obszaru „Bóg i duchowość” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_CHARAKTER",
+            "area": "CHARAKTER",
+            "description": "Zadanie z obszaru „siła charakteru” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_ROZUM",
+            "area": "ROZUM",
+            "description": "Zadanie z obszaru „rozum” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_ZDROWIE",
+            "area": "ZDROWIE",
+            "description": "Zadanie z obszaru „zdrowie” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_OJCZYZNA",
+            "area": "OJCZYZNA",
+            "description": "Zadanie z obszaru „małe ojczyzny i Polska” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_RODZINA",
+            "area": "RODZINA",
+            "description": "Zadanie z obszaru „rodzina” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Zadanie z obszaru „służba” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_PASJE",
+            "area": "PASJE",
+            "description": "Zadanie z obszaru „pasje” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_KULTURA",
+            "area": "KULTURA",
+            "description": "Zadanie z obszaru „kultura” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_PRZYRODA",
+            "area": "PRZYRODA",
+            "description": "Zadanie z obszaru „przyroda” uzgodnione z drużynowym na stopień ćwik."
+          },
+          {
+            "code": "CWIK_PROBA_KONCOWA",
+            "area": "PROBA_KONCOWA",
+            "description": "Próba końcowa na stopień ćwik.",
+            "isFeat": true
+          }
+        ],
+        "requirementsArePlaceholder": true
       }
     },
     {
@@ -57,7 +234,60 @@
         "ageMin": 15,
         "ageMax": 18,
         "finalTrialRequired": false,
-        "guardianRequired": true
+        "guardianRequired": true,
+        "requirements": [
+          {
+            "code": "HARCERZ_ORLI_BOG",
+            "area": "BOG",
+            "description": "Zadanie z obszaru „Bóg i duchowość” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_CHARAKTER",
+            "area": "CHARAKTER",
+            "description": "Zadanie z obszaru „siła charakteru” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_ROZUM",
+            "area": "ROZUM",
+            "description": "Zadanie z obszaru „rozum” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_ZDROWIE",
+            "area": "ZDROWIE",
+            "description": "Zadanie z obszaru „zdrowie” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_OJCZYZNA",
+            "area": "OJCZYZNA",
+            "description": "Zadanie z obszaru „małe ojczyzny i Polska” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_RODZINA",
+            "area": "RODZINA",
+            "description": "Zadanie z obszaru „rodzina” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Zadanie z obszaru „służba” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_PASJE",
+            "area": "PASJE",
+            "description": "Zadanie z obszaru „pasje” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_KULTURA",
+            "area": "KULTURA",
+            "description": "Zadanie z obszaru „kultura” uzgodnione z drużynowym na stopień Harcerz Orli."
+          },
+          {
+            "code": "HARCERZ_ORLI_PRZYRODA",
+            "area": "PRZYRODA",
+            "description": "Zadanie z obszaru „przyroda” uzgodnione z drużynowym na stopień Harcerz Orli."
+          }
+        ],
+        "requirementsArePlaceholder": true
       }
     },
     {
@@ -72,7 +302,60 @@
         "ageMax": null,
         "finalTrialRequired": false,
         "guardianRequired": true,
-        "chapterChairMinInstructorRank": "PODHARCMISTRZ"
+        "chapterChairMinInstructorRank": "PODHARCMISTRZ",
+        "requirements": [
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_BOG",
+            "area": "BOG",
+            "description": "Zadanie z obszaru „Bóg i duchowość” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_CHARAKTER",
+            "area": "CHARAKTER",
+            "description": "Zadanie z obszaru „siła charakteru” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_ROZUM",
+            "area": "ROZUM",
+            "description": "Zadanie z obszaru „rozum” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_ZDROWIE",
+            "area": "ZDROWIE",
+            "description": "Zadanie z obszaru „zdrowie” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_OJCZYZNA",
+            "area": "OJCZYZNA",
+            "description": "Zadanie z obszaru „małe ojczyzny i Polska” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_RODZINA",
+            "area": "RODZINA",
+            "description": "Zadanie z obszaru „rodzina” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_SLUZBA",
+            "area": "SLUZBA",
+            "description": "Zadanie z obszaru „służba” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_PASJE",
+            "area": "PASJE",
+            "description": "Zadanie z obszaru „pasje” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_KULTURA",
+            "area": "KULTURA",
+            "description": "Zadanie z obszaru „kultura” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          },
+          {
+            "code": "HARCERZ_RZECZYPOSPOLITEJ_PRZYRODA",
+            "area": "PRZYRODA",
+            "description": "Zadanie z obszaru „przyroda” uzgodnione z drużynowym na stopień Harcerz Rzeczypospolitej."
+          }
+        ],
+        "requirementsArePlaceholder": true
       }
     }
   ]
