@@ -211,6 +211,41 @@ export async function updateUnitCard(_prev: ActionResult, fd: FormData): Promise
   return { ok: true, message: 'Wizytówka zapisana.' };
 }
 
+/**
+ * Przyjęcie instruktora i wpis na listę (§7.3).
+ *
+ * Kompetencja ADMIT_INSTRUCTOR należy do poziomu chorągwi i wyżej — API odrzuci
+ * żądanie od drużynowego albo hufcowego, nawet gdyby dotarł do formularza.
+ */
+export async function createInstructor(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  try {
+    await api('/instructors', {
+      method: 'POST',
+      body: JSON.stringify({
+        firstName: str(fd, 'firstName'),
+        lastName: str(fd, 'lastName'),
+        ...(opt(fd, 'email') && { email: str(fd, 'email') }),
+        branch: str(fd, 'branch'),
+        homeChoragiewId: str(fd, 'homeChoragiewId'),
+        rank: str(fd, 'rank'),
+        rankAwardedAt: str(fd, 'rankAwardedAt'),
+        listType: str(fd, 'listType'),
+        mainAssignmentLevel: str(fd, 'mainAssignmentLevel'),
+        ...(opt(fd, 'mainAssignmentUnitId') && {
+          mainAssignmentUnitId: str(fd, 'mainAssignmentUnitId'),
+        }),
+        ...(opt(fd, 'instructorPledgeDate') && {
+          instructorPledgeDate: str(fd, 'instructorPledgeDate'),
+        }),
+      }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/instruktorzy');
+  redirect('/instruktorzy');
+}
+
 /** Rozpoczęcie karty stopnia/sprawności (§12.1). */
 export async function startProgression(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
   try {

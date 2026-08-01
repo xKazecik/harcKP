@@ -1047,6 +1047,95 @@ table.data a:hover {
   z-index: 55;
 }
 
+/* --- Mapa publiczna (§15) -------------------------------------------------- */
+.map-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+  flex-wrap: wrap;
+}
+
+.map-body {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* Pineska jednostki — kolor rozróżnia gałąź, nie ocenia jej. */
+.map-pin {
+  cursor: pointer;
+  border: 2px solid currentColor;
+  background: var(--surface-raised);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: var(--shadow);
+  padding: 0;
+}
+
+.map-pin[data-branch='HARCERZE'] {
+  color: var(--branch-harcerze);
+}
+.map-pin[data-branch='HARCERKI'] {
+  color: var(--branch-harcerki);
+}
+
+.map-card {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: min(340px, calc(100% - var(--space-5)));
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+}
+
+.map-notice {
+  position: absolute;
+  left: 50%;
+  top: var(--space-5);
+  transform: translateX(-50%);
+  width: min(460px, calc(100% - var(--space-5)));
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+  text-align: center;
+}
+
+/* Atrybucja OSM czytelna w obu motywach. */
+.maplibregl-ctrl-attrib {
+  background: var(--surface-raised) !important;
+  color: var(--text-muted) !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--accent) !important;
+}
+
 /* --- Wydruk (§16.2: PDF i wydruki zawsze jasne) --------------------------- */
 @media print {
   :root,

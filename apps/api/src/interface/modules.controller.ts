@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { AddOrderItemSchema, CreateOrderSchema } from '@harc/contracts';
 import { ZodValidationPipe } from './zod-validation.pipe.js';
 import { InstructorsService } from '../application/instructors/instructors.service.js';
+import { CreateInstructorUseCase } from '../application/instructors/create-instructor.usecase.js';
 import { AuthorizationService } from '../application/authorization/authorization.service.js';
 import { OrdersService } from '../application/orders/orders.service.js';
 import { ProgressionService } from '../application/progression/progression.service.js';
@@ -29,9 +30,71 @@ import {
 
 const isRoot = (h?: string): boolean => h === 'true';
 
+/** Przyjęcie instruktora i wpis na listę (§7.3, §11.2 ENROLL_ON_INSTRUCTOR_LIST). */
+const CreateInstructorSchema = z.object({
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  email: z.string().email().optional(),
+  branch: z.enum(['HARCERZE', 'HARCERKI']),
+  homeChoragiewId: z.string().uuid(),
+  rank: z.enum(['PRZEWODNIK', 'PODHARCMISTRZ', 'HARCMISTRZ']),
+  rankAwardedAt: z.string().date(),
+  listType: z.enum(['CZYNNY', 'WSPIERAJACY']),
+  mainAssignmentLevel: z.enum([
+    'HUFIEC',
+    'CHORAGIEW',
+    'GK',
+    'WLADZE_NACZELNE',
+    'POZA_PIONEM_WYCHOWAWCZYM',
+  ]),
+  mainAssignmentUnitId: z.string().uuid().optional(),
+  instructorPledgeDate: z.string().date().optional(),
+});
+
 @Controller('instructors')
 export class InstructorsController {
-  constructor(private readonly service: InstructorsService) {}
+  constructor(
+    private readonly service: InstructorsService,
+    private readonly createInstructor: CreateInstructorUseCase,
+    private readonly authz: AuthorizationService,
+  ) {}
+
+  /**
+   * Przyjmuje instruktora: zakłada osobę (z kontem albo bez) i profil RSI.
+   *
+   * Kompetencja `ADMIT_INSTRUCTOR` należy do poziomu chorągwi i wyżej (§10.2) —
+   * drużynowy ani hufcowy nie przyjmują instruktorów. Root i sysadmin przechodzą
+   * przez tę samą ścieżkę autoryzacji, bez wyjątku w kontrolerze.
+   *
+   * @throws 403 FORBIDDEN gdy aktor nie ma kompetencji w tej chorągwi
+   * @throws 409 EMAIL_ALREADY_IN_USE gdy adres należy do aktywnego profilu
+   */
+  @Post()
+  @HttpCode(201)
+  async create(
+    @Body(new ZodValidationPipe(CreateInstructorSchema))
+    body: z.infer<typeof CreateInstructorSchema>,
+    @Headers('x-person-id') actorId: string,
+    @Headers('x-root') root: string,
+  ) {
+    await this.authz.require(actorId, isRoot(root), 'ADMIT_INSTRUCTOR', body.homeChoragiewId);
+    return this.createInstructor.execute({
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      branch: body.branch,
+      homeChoragiewId: body.homeChoragiewId,
+      rank: body.rank,
+      rankAwardedAt: new Date(body.rankAwardedAt),
+      listType: body.listType,
+      mainAssignmentLevel: body.mainAssignmentLevel,
+      mainAssignmentUnitId: body.mainAssignmentUnitId,
+      ...(body.instructorPledgeDate && {
+        instructorPledgeDate: new Date(body.instructorPledgeDate),
+      }),
+      createdByPersonId: actorId,
+    });
+  }
 
   @Get(':personId')
   get(@Param('personId', ParseUUIDPipe) personId: string) {

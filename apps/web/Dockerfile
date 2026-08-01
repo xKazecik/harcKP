@@ -12,15 +12,19 @@ FROM base AS build
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/contracts/package.json packages/contracts/
+COPY packages/domain/package.json packages/domain/
 COPY packages/ui/package.json packages/ui/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm config set store-dir /pnpm/store && \
     pnpm install --frozen-lockfile --filter @harc/web...
 COPY tsconfig.base.json ./
 COPY packages/contracts packages/contracts
+COPY packages/domain packages/domain
 COPY packages/ui packages/ui
 COPY apps/web apps/web
-RUN pnpm --filter @harc/contracts build && pnpm --filter @harc/web build
+RUN pnpm --filter @harc/domain build \
+  && pnpm --filter @harc/contracts build \
+  && pnpm --filter @harc/web build
 
 FROM node:22-alpine AS runner
 RUN apk add --no-cache tini

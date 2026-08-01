@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@harc/contracts": "workspace:*",
+    "@harc/domain": "workspace:*",
     "@harc/ui": "workspace:*",
+    "maplibre-gl": "^4.7.1",
     "next": "^15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

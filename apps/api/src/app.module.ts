@@ -37,6 +37,7 @@ import { ArchivePersonUseCase } from './application/persons/archive-person.useca
 import { RestorePersonUseCase } from './application/persons/restore-person.usecase';
 import { PersonProfileUseCase } from './application/persons/person-profile.usecase';
 import { InstructorsService } from './application/instructors/instructors.service';
+import { CreateInstructorUseCase } from './application/instructors/create-instructor.usecase';
 import { AuthorizationService } from './application/authorization/authorization.service';
 import { OrdersService } from './application/orders/orders.service';
 import { ProgressionService } from './application/progression/progression.service';
@@ -82,6 +83,7 @@ import {
     RestorePersonUseCase,
     PersonProfileUseCase,
     InstructorsService,
+    CreateInstructorUseCase,
     AuthorizationService,
     OrdersService,
     ProgressionService,

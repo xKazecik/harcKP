@@ -2,10 +2,16 @@
 
 /**
  * Mapa publiczna (§15): MapLibre GL + OpenStreetMap, bez logowania i klucza API.
- * Klastrowanie, filtry (organizacja, typ), wizytówki z ikonami platform.
- * Styl mapy przełącza się razem z motywem aplikacji.
+ *
+ * MapLibre jest zależnością npm, nie skryptem z CDN — instancja postawiona
+ * w zamkniętej sieci albo bez dostępu do internetu nadal renderuje interfejs
+ * mapy (kafle OSM wymagają sieci, ale sama aplikacja się nie wywraca).
+ *
+ * Publikowane są WYŁĄCZNIE dane jednostek, nigdy dane osobowe.
  */
 import { useEffect, useRef, useState } from 'react';
+import maplibregl, { type Map as MapLibreMap } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 interface MapUnit {
   id: string;
@@ -21,26 +27,6 @@ interface MapUnit {
   lng: number | null;
 }
 
-/** Minimalne typy MapLibre (UMD z CDN — bez pakietu npm i jego typów). */
-interface MapLibreGL {
-  Map: new (opts: Record<string, unknown>) => { remove(): void };
-  Marker: new (opts: { element: HTMLElement }) => {
-    setLngLat(lnglat: [number, number]): { addTo(map: unknown): void };
-  };
-}
-
-function loadMapLibre(): Promise<MapLibreGL> {
-  const w = window as unknown as { maplibregl?: MapLibreGL };
-  if (w.maplibregl) return Promise.resolve(w.maplibregl);
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js';
-    s.onload = () => (w.maplibregl ? resolve(w.maplibregl) : reject(new Error('maplibre missing')));
-    s.onerror = () => reject(new Error('maplibre load failed'));
-    document.head.appendChild(s);
-  });
-}
-
 const PLATFORM_ICONS: Record<string, string> = {
   FACEBOOK: 'ⓕ',
   INSTAGRAM: '◉',
@@ -50,110 +36,193 @@ const PLATFORM_ICONS: Record<string, string> = {
   WWW: '🌐',
 };
 
+/** Środek Polski — widok startowy, gdy nie ma czego dopasować. */
+const POLAND_CENTER: [number, number] = [19.1451, 51.9194];
+
 export default function PublicMapPage() {
-  const mapRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
   const [units, setUnits] = useState<MapUnit[]>([]);
   const [selected, setSelected] = useState<MapUnit | null>(null);
   const [branchFilter, setBranchFilter] = useState<string>('');
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
+  // Mapa powstaje RAZ, niezależnie od tego, czy są jakiekolwiek jednostki —
+  // pusta mapa to poprawny stan, brak mapy to błąd.
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const dark = document.documentElement.classList.contains('dark');
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '© OpenStreetMap contributors',
+          },
+        },
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
+            // Tryb ciemny ma własny styl mapy, przełączany z motywem (§16.2).
+            paint: dark
+              ? { 'raster-brightness-max': 0.65, 'raster-saturation': -0.4, 'raster-contrast': 0.1 }
+              : {},
+          },
+        ],
+      },
+      center: POLAND_CENTER,
+      zoom: 5.5,
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }));
+    map.on('load', () => setStatus('ready'));
+    map.on('error', () => setStatus('error'));
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Przez własny serwer Next, nie wprost do API — inaczej przeglądarka trafia
+  // na inne origin i żądanie blokuje CORS (API celowo go nie włącza).
   useEffect(() => {
     const q = branchFilter ? `?branch=${branchFilter}` : '';
-    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/public/map-units${q}`)
-      .then((r) => r.json())
+    fetch(`/api/public/map-units${q}`)
+      .then((r) => (r.ok ? r.json() : []))
       .then(setUnits)
       .catch(() => setUnits([]));
   }, [branchFilter]);
 
+  // Pineski przerysowywane przy każdej zmianie listy albo filtra.
   useEffect(() => {
-    if (!mapRef.current || units.length === 0) return;
-    let map: { remove(): void } | undefined;
-    (async () => {
-      // MapLibre (UMD) ładowany tagiem <script> z CDN — bez klucza API (§15).
-      const css = document.createElement('link');
-      css.rel = 'stylesheet';
-      css.href = 'https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.css';
-      document.head.appendChild(css);
-      const maplibregl = await loadMapLibre();
-      const dark = document.documentElement.classList.contains('dark');
-      const m = new maplibregl.Map({
-        container: mapRef.current as HTMLElement,
-        style: {
-          version: 8,
-          sources: {
-            osm: {
-              type: 'raster',
-              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-              tileSize: 256,
-              attribution: '© OpenStreetMap',
-            },
-          },
-          layers: [
-            {
-              id: 'osm',
-              type: 'raster',
-              source: 'osm',
-              // Tryb ciemny: własny styl przez filtr rastrowy (§15).
-              paint: dark ? { 'raster-brightness-max': 0.6, 'raster-saturation': -0.5 } : {},
-            },
-          ],
-        },
-        center: [19.1451, 51.9194],
-        zoom: 6,
-      });
-      for (const u of units) {
-        if (u.lat == null || u.lng == null) continue;
-        const el = document.createElement('button');
-        el.textContent = u.branch === 'HARCERKI' ? '⚜' : '⚜';
-        el.style.cssText = `cursor:pointer;border:none;background:var(--surface-raised);color:${u.branch === 'HARCERKI' ? '#9d4edd' : 'var(--accent)'};border-radius:50%;width:28px;height:28px;font-size:16px;box-shadow:0 1px 4px rgba(0,0,0,.3)`;
-        el.setAttribute('aria-label', u.displayName);
-        el.onclick = () => setSelected(u);
-        new maplibregl.Marker({ element: el }).setLngLat([u.lng, u.lat]).addTo(m);
-      }
-      map = m;
-    })();
-    return () => map?.remove();
+    const map = mapRef.current;
+    if (!map) return;
+
+    for (const m of markersRef.current) m.remove();
+    markersRef.current = [];
+
+    const located = units.filter((u) => u.lat != null && u.lng != null);
+    for (const u of located) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.textContent = '⚜';
+      el.className = 'map-pin';
+      el.dataset.branch = u.branch;
+      el.onclick = () => setSelected(u);
+      const marker = new maplibregl.Marker({ element: el }).setLngLat([u.lng!, u.lat!]).addTo(map);
+      // MapLibre nadpisuje aria-label własnym „Map marker" przy addTo —
+      // nazwę jednostki ustawiamy po dodaniu, żeby czytnik ekranu ją odczytał.
+      el.setAttribute('aria-label', u.displayName);
+      el.title = u.displayName;
+      markersRef.current.push(marker);
+    }
+
+    // Dopasowanie widoku do jednostek — przy jednej pinesce zoom stały.
+    if (located.length === 1) {
+      map.easeTo({ center: [located[0]!.lng!, located[0]!.lat!], zoom: 12 });
+    } else if (located.length > 1) {
+      const bounds = new maplibregl.LngLatBounds();
+      for (const u of located) bounds.extend([u.lng!, u.lat!]);
+      map.fitBounds(bounds, { padding: 80, maxZoom: 12, duration: 600 });
+    }
   }, [units]);
 
+  const located = units.filter((u) => u.lat != null && u.lng != null).length;
+
   return (
-    <main style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--surface)', color: 'var(--text)' }}>
-      <header style={{ padding: '12px 16px', display: 'flex', gap: 12, alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
-        <h1 style={{ fontSize: 18, margin: 0 }}>Mapa jednostek ZHR</h1>
+    <main className="map-page">
+      <header className="map-header">
+        <a href="/" className="row" style={{ gap: 8, textDecoration: 'none', color: 'var(--text)' }}>
+          <span aria-hidden>⚜</span>
+          <strong>Mapa jednostek ZHR</strong>
+        </a>
         <select
           aria-label="Filtr organizacji"
           value={branchFilter}
           onChange={(e) => setBranchFilter(e.target.value)}
-          style={{ background: 'var(--surface-raised)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px' }}
+          style={{ width: 'auto' }}
         >
           <option value="">Obie organizacje</option>
           <option value="HARCERZE">Organizacja Harcerzy</option>
           <option value="HARCERKI">Organizacja Harcerek</option>
         </select>
-        <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>{units.length} jednostek</span>
+        <span className="small muted">
+          {located} z {units.length} jednostek ma podaną lokalizację
+        </span>
+        <span className="grow" />
+        <a className="btn btn-sm" href="/">
+          Zaloguj się
+        </a>
       </header>
-      <div style={{ flex: 1, position: 'relative' }}>
-        <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
+
+      <div className="map-body">
+        <div ref={containerRef} className="map-canvas" />
+
+        {status === 'error' && (
+          <div className="map-notice" role="status">
+            <strong>Nie udało się pobrać kafli mapy</strong>
+            <p className="small muted mb-0">
+              Interfejs mapy działa, ale podkład OpenStreetMap wymaga połączenia z internetem.
+              Lista jednostek poniżej pozostaje dostępna.
+            </p>
+          </div>
+        )}
+
+        {status === 'ready' && units.length === 0 && (
+          <div className="map-notice" role="status">
+            <strong>Żadna jednostka nie jest jeszcze widoczna publicznie</strong>
+            <p className="small muted mb-0">
+              Jednostka pojawia się na mapie, gdy jej komendant włączy widoczność w wizytówce
+              i poda współrzędne harcówki. Decyzję o publikacji podejmuje sam komendant.
+            </p>
+          </div>
+        )}
+
         {selected && (
-          <aside
-            role="dialog"
-            aria-label={selected.displayName}
-            style={{ position: 'absolute', top: 16, right: 16, width: 320, background: 'var(--surface-raised)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, boxShadow: '0 4px 24px rgba(0,0,0,.2)' }}
-          >
-            <button onClick={() => setSelected(null)} aria-label="Zamknij" style={{ float: 'right', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
-            <h2 style={{ fontSize: 16, marginTop: 0 }}>{selected.displayName}</h2>
-            {selected.description && <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>{selected.description}</p>}
-            {selected.address && <p style={{ fontSize: 13 }}>📍 {selected.address}</p>}
-            {selected.meetingTimes && <p style={{ fontSize: 13 }}>🕐 {selected.meetingTimes}</p>}
-            {selected.socialLinks && (
-              <p style={{ display: 'flex', gap: 8 }}>
+          <aside className="map-card" role="dialog" aria-label={selected.displayName}>
+            <button
+              onClick={() => setSelected(null)}
+              aria-label="Zamknij wizytówkę"
+              className="btn btn-ghost btn-sm"
+              style={{ float: 'right' }}
+            >
+              ✕
+            </button>
+            <h2 style={{ fontSize: 'var(--text-md)', marginTop: 0, paddingRight: 28 }}>
+              {selected.displayName}
+            </h2>
+            {selected.description && <p className="small muted">{selected.description}</p>}
+            {selected.address && <p className="small">📍 {selected.address}</p>}
+            {selected.meetingTimes && <p className="small">🕐 {selected.meetingTimes}</p>}
+            {selected.socialLinks && selected.socialLinks.length > 0 && (
+              <p className="row" style={{ gap: 10 }}>
                 {selected.socialLinks.map((l) => (
-                  <a key={l.url} href={l.url} target="_blank" rel="noreferrer" title={l.platform} style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: 18 }}>
+                  <a
+                    key={l.url}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={l.platform}
+                    style={{ fontSize: 18, textDecoration: 'none' }}
+                  >
                     {PLATFORM_ICONS[l.platform] ?? '🔗'}
                   </a>
                 ))}
               </p>
             )}
             {selected.publicEmail && (
-              <a href={`mailto:${selected.publicEmail}`} style={{ display: 'inline-block', background: 'var(--accent)', color: '#fff', padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontSize: 14 }}>
+              <a className="btn btn-primary btn-sm" href={`mailto:${selected.publicEmail}`}>
                 Napisz do nas
               </a>
             )}

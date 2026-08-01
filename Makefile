@@ -1,7 +1,9 @@
 # HARC — polecenia developerskie
 .PHONY: dev seed test lint migrate realm-export down
 
-## Uruchamia pełne środowisko dev (Postgres, Redis, Keycloak+realm, MailHog, MinIO, aplikacje)
+## Uruchamia pełne środowisko dev (Postgres, Redis, Keycloak+realm, MailHog, MinIO, aplikacje).
+## Usługa `init` sama zakłada schemat, słowniki i jednostki korzeniowe — nie ma
+## żadnych kroków ręcznych po `make dev`.
 dev:
 	docker compose up --build -d
 	@echo "web: http://localhost:3000 | api: http://localhost:3001 | keycloak: http://localhost:8080 | mailhog: http://localhost:8025"

@@ -50,6 +50,11 @@ export default async function InstructorsPage({
       <PageHeader
         title="Instruktorzy"
         subtitle={`${rows.length} osób w wykazie`}
+        actions={
+          <a className="btn btn-primary" href="/instruktorzy/nowy">
+            Przyjmij instruktora
+          </a>
+        }
       />
 
       <div className="grid grid-4 mb-5">
@@ -109,6 +114,11 @@ export default async function InstructorsPage({
             icon="⚜"
             title="Brak instruktorów w wykazie"
             hint="Profil instruktorski powstaje po przyznaniu stopnia instruktorskiego i wpisaniu na listę przez zwierzchnika. Stopnie instruktorskie są zastrzeżone dla poziomu chorągwi i wyżej — drużynowy ani hufcowy ich nie przyznaje."
+            action={
+              <a className="btn btn-primary" href="/instruktorzy/nowy">
+                Przyjmij pierwszego instruktora
+              </a>
+            }
           />
         ) : (
           <div className="table-wrap">
