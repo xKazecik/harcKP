@@ -1,6 +1,7 @@
 /**
  * Audit log (§18) — pełny, niemodyfikowalny rejestr z filtrowaniem.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { Card, Empty, PageHeader } from '../../../components/ui';
 import { dateTime, orDash } from '../../../../lib/format';
@@ -38,9 +39,9 @@ export default async function AuditPage({
         title="Audit log"
         subtitle={`${rows.length} ostatnich zdarzeń`}
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 
@@ -63,9 +64,9 @@ export default async function AuditPage({
           Filtruj
         </button>
         {(action || resourceType) && (
-          <a className="btn btn-ghost" href="/admin/audit">
+          <Link className="btn btn-ghost" href="/admin/audit">
             Wyczyść
-          </a>
+          </Link>
         )}
       </form>
 
@@ -107,9 +108,9 @@ export default async function AuditPage({
                     </td>
                     <td className="small">
                       {r.actorPersonId ? (
-                        <a href={`/czlonkowie/${r.actorPersonId}`}>
+                        <Link href={`/czlonkowie/${r.actorPersonId}`}>
                           {r.actorPersonId.slice(0, 8)}…
-                        </a>
+                        </Link>
                       ) : (
                         <span className="muted">system</span>
                       )}

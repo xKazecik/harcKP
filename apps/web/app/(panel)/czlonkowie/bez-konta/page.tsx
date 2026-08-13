@@ -5,6 +5,7 @@
  * wpisywać do rozkazów i liczyć w spisie. Jedyne ograniczenie to brak
  * logowania. W dowolnym momencie da się go „podnieść" do konta zaproszeniem.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { requireSession } from '../../../../lib/session';
 import { getActiveUnitId } from '../../../../lib/context';
@@ -33,9 +34,9 @@ export default async function WithoutAccountPage() {
         title="Profil bez konta"
         subtitle="Dla osoby, która nie ma własnego adresu e-mail"
         actions={
-          <a className="btn" href="/czlonkowie">
+          <Link className="btn" href="/czlonkowie">
             Wróć do listy
-          </a>
+          </Link>
         }
       />
 

@@ -9,6 +9,7 @@
  * aktywnej pozycji). Dane przychodzą z serwerowego layoutu — nie ma tu
  * żadnego fetcha ani decyzji o uprawnieniach.
  */
+import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './theme-toggle';
@@ -60,14 +61,14 @@ export function AppShell({
         aria-label="Nawigacja główna"
         id="nawigacja"
       >
-        <a className="sidebar-brand" href="/pulpit">
+        <Link className="sidebar-brand" href="/pulpit">
           <span aria-hidden>⚜</span>
           <span>
             HARC
             <br />
             <small>pion wychowawczy ZHR</small>
           </span>
-        </a>
+        </Link>
 
         {units.length > 0 && (
           <form method="post" action="/api/context/unit" style={{ padding: 'var(--space-3)' }}>
@@ -199,18 +200,18 @@ export function AppShell({
               }}
             >
               <div className="sidebar-nav" style={{ padding: 'var(--space-2)' }}>
-                <a className="nav-item" href="/profil">
+                <Link className="nav-item" href="/profil">
                   <span className="nav-icon" aria-hidden>
                     👤
                   </span>
                   Mój profil
-                </a>
-                <a className="nav-item" href="/dokumenty">
+                </Link>
+                <Link className="nav-item" href="/dokumenty">
                   <span className="nav-icon" aria-hidden>
                     📚
                   </span>
                   Dokumentacja
-                </a>
+                </Link>
                 <a className="nav-item" href="/api/auth/logout">
                   <span className="nav-icon" aria-hidden>
                     ⏻

@@ -14,7 +14,7 @@
 import { useMemo, useState } from 'react';
 import { validateUnitParent, type Branch, type UnitType } from '@harc/domain';
 import { createUnit, type ActionResult } from '../actions';
-import { ActionForm, Field, Select } from './action-form';
+import { ActionForm, Field } from './action-form';
 
 export interface ParentOption {
   id: string;

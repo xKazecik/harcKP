@@ -5,6 +5,7 @@
  * zmienną nadpisano. Blokada jest egzekwowana także po stronie API (409
  * SETTING_LOCKED_BY_ENV) — UI jedynie ją odzwierciedla.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { updateSetting } from '../../../actions';
 import { InlineActionSetting } from './setting-form';
@@ -29,9 +30,9 @@ export default async function SettingsPage() {
         title="Ustawienia"
         subtitle={`${settings.length} kluczy · ${locked} nadpisanych przez serwer`}
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 

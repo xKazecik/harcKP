@@ -6,6 +6,7 @@
  * Zmiana regulaminu dodaje NOWĄ wersję; istniejąca nigdy nie jest nadpisywana,
  * bo trwające karty prób rozliczane są według wersji, pod którą powstały.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { Alert, Card, Empty, PageHeader } from '../../../components/ui';
 import { date } from '../../../../lib/format';
@@ -45,9 +46,9 @@ export default async function DictionariesPage({
         title="Słowniki"
         subtitle={`${dictionaries.length} katalogów wersjonowanych`}
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 
@@ -70,7 +71,7 @@ export default async function DictionariesPage({
           <Card title="Katalogi" bodyless>
             <div className="sidebar-nav" style={{ padding: 'var(--space-2)' }}>
               {dictionaries.map((d) => (
-                <a
+                <Link
                   key={d.key}
                   className="nav-item"
                   href={`/admin/slowniki?key=${encodeURIComponent(d.key)}`}
@@ -78,7 +79,7 @@ export default async function DictionariesPage({
                 >
                   <span className="grow truncate">{d.key}</span>
                   <span className="badge">{d.entries.length}</span>
-                </a>
+                </Link>
               ))}
             </div>
           </Card>

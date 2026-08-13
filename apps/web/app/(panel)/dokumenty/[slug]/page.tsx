@@ -5,6 +5,7 @@
  * projektowa nie potrzebuje pełnego Markdowna, a brak zewnętrznej biblioteki
  * upraszcza obraz produkcyjny.
  */
+import Link from 'next/link';
 import { readFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { notFound } from 'next/navigation';
@@ -171,9 +172,9 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         title={meta?.title ?? safe}
         subtitle={meta?.desc}
         actions={
-          <a className="btn" href="/dokumenty">
+          <Link className="btn" href="/dokumenty">
             Wszystkie dokumenty
-          </a>
+          </Link>
         }
       />
       <Card>

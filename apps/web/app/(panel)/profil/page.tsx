@@ -1,6 +1,7 @@
 /**
  * Profil zalogowanego użytkownika — dane, funkcje i preferencja motywu.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { Alert, Card, DefinitionList, Empty, PageHeader, StatusBadge } from '../../components/ui';
@@ -38,9 +39,9 @@ export default async function ProfilePage() {
         subtitle={me.person ? `${me.person.firstName} ${me.person.lastName}` : 'Konto bez profilu'}
         actions={
           me.person && (
-            <a className="btn" href={`/czlonkowie/${me.person.id}`}>
+            <Link className="btn" href={`/czlonkowie/${me.person.id}`}>
               Pełna karta osoby
-            </a>
+            </Link>
           )
         }
       />
@@ -123,7 +124,7 @@ export default async function ProfilePage() {
               <ul className="stack-sm" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {me.units.map((u) => (
                   <li key={u.id} className="spread">
-                    <a href={`/jednostki/${u.id}`}>{u.displayName}</a>
+                    <Link href={`/jednostki/${u.id}`}>{u.displayName}</Link>
                     <span className="row" style={{ gap: 4 }}>
                       {u.isLeader && <span className="badge badge-accent">funkcja</span>}
                       {u.isActing && <span className="badge badge-warning">p.o.</span>}

@@ -6,6 +6,7 @@
  * (widok funkcyjnego własnej jednostki, §17); widoki wyższych szczebli
  * pokazują wyłącznie wiek.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
@@ -86,12 +87,12 @@ export default async function MembersPage({
         subtitle={`${unitName} · ${members.length} ${plural(members.length, 'osoba', 'osoby', 'osób')}`}
         actions={
           <>
-            <a className="btn" href="/czlonkowie/bez-konta">
+            <Link className="btn" href="/czlonkowie/bez-konta">
               Profil bez konta
-            </a>
-            <a className="btn btn-primary" href="/czlonkowie/przyjmij">
+            </Link>
+            <Link className="btn btn-primary" href="/czlonkowie/przyjmij">
               Przyjmij do jednostki
-            </a>
+            </Link>
           </>
         }
       />
@@ -125,9 +126,9 @@ export default async function MembersPage({
           Filtruj
         </button>
         {q && (
-          <a className="btn btn-ghost" href="/czlonkowie">
+          <Link className="btn btn-ghost" href="/czlonkowie">
             Wyczyść
-          </a>
+          </Link>
         )}
       </form>
 
@@ -143,9 +144,9 @@ export default async function MembersPage({
             }
             action={
               !q && (
-                <a className="btn btn-primary" href="/czlonkowie/przyjmij">
+                <Link className="btn btn-primary" href="/czlonkowie/przyjmij">
                   Przyjmij pierwszą osobę
-                </a>
+                </Link>
               )
             }
           />
@@ -170,9 +171,9 @@ export default async function MembersPage({
                 {members.map((m) => (
                   <tr key={m.id}>
                     <td>
-                      <a href={`/czlonkowie/${m.id}`}>
+                      <Link href={`/czlonkowie/${m.id}`}>
                         {m.lastName} {m.firstName}
-                      </a>
+                      </Link>
                       {m.school && <div className="xs muted">{m.school}</div>}
                     </td>
                     <td className="num">{orDash(m.age)}</td>
@@ -188,9 +189,9 @@ export default async function MembersPage({
                     </td>
                     <td>
                       {m.openCard ? (
-                        <a className="small" href={`/progresja/${m.openCard.id}`}>
+                        <Link className="small" href={`/progresja/${m.openCard.id}`}>
                           {labelFor(labels, m.openCard.targetCode)}
-                        </a>
+                        </Link>
                       ) : (
                         <span className="muted small">—</span>
                       )}

@@ -1,6 +1,7 @@
 /**
  * Zaproszenia (§8.2) — oczekujące i wygasłe, ponowna wysyłka, unieważnienie.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { resendInvitation, revokeInvitation } from '../../../actions';
 import { InlineAction } from '../../../components/action-form';
@@ -35,9 +36,9 @@ export default async function InvitationsPage() {
         title="Zaproszenia"
         subtitle={`${pending.length} oczekujących · ${expired.length} wygasłych`}
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 
@@ -54,9 +55,9 @@ export default async function InvitationsPage() {
             title="Brak zaproszeń"
             hint="Zaproszenie powstaje przy przyjmowaniu osoby do jednostki. Wejdź w Członkowie → Przyjmij do jednostki, podaj imię, nazwisko i adres e-mail."
             action={
-              <a className="btn btn-primary" href="/czlonkowie/przyjmij">
+              <Link className="btn btn-primary" href="/czlonkowie/przyjmij">
                 Przyjmij do jednostki
-              </a>
+              </Link>
             }
           />
         ) : (
@@ -86,7 +87,7 @@ export default async function InvitationsPage() {
                   return (
                     <tr key={i.id}>
                       <td>
-                        <a href={`/czlonkowie/${i.personId}`}>Profil osoby</a>
+                        <Link href={`/czlonkowie/${i.personId}`}>Profil osoby</Link>
                       </td>
                       <td className="small">{dateTime(i.createdAt)}</td>
                       <td className="small">{dateTime(i.lastSentAt)}</td>

@@ -4,6 +4,7 @@
  * Drzewo buduje się z pola `parentId`; jednostki poziome (szczep, kręgi) nie
  * mają podległości i pojawiają się w gałęzi swojego rodzica.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { Card, Empty, PageHeader, StatusBadge } from '../../components/ui';
 import { text } from '../../../lib/labels';
@@ -28,7 +29,7 @@ function Branch({ units, parentId }: { units: UnitRow[]; parentId: string | null
     <ul className={parentId === null ? 'tree' : undefined}>
       {children.map((u) => (
         <li key={u.id}>
-          <a className="tree-node" href={`/jednostki/${u.id}`}>
+          <Link className="tree-node" href={`/jednostki/${u.id}`}>
             <span>{u.displayName}</span>
             <StatusBadge dictionary="unitStatus" value={u.status} />
             {u.isPubliclyVisible && (
@@ -36,7 +37,7 @@ function Branch({ units, parentId }: { units: UnitRow[]; parentId: string | null
                 mapa
               </span>
             )}
-          </a>
+          </Link>
           <Branch units={units} parentId={u.id} />
         </li>
       ))}
@@ -54,9 +55,9 @@ export default async function UnitsPage() {
         title="Struktura organizacyjna"
         subtitle={`${units.length} jednostek w obu organizacjach`}
         actions={
-          <a className="btn btn-primary" href="/jednostki/nowa">
+          <Link className="btn btn-primary" href="/jednostki/nowa">
             Nowa jednostka
-          </a>
+          </Link>
         }
       />
 
@@ -67,9 +68,9 @@ export default async function UnitsPage() {
             title="Struktura jest pusta"
             hint="Drzewo zaczyna się od jednostek korzeniowych (Organizacja Harcerek i Organizacja Harcerzy). Tworzy je skrypt bootstrapowy przy instalacji; kolejne poziomy zakłada się rozkazem właściwej jednostki."
             action={
-              <a className="btn btn-primary" href="/jednostki/nowa">
+              <Link className="btn btn-primary" href="/jednostki/nowa">
                 Utwórz jednostkę
-              </a>
+              </Link>
             }
           />
         </Card>
@@ -77,10 +78,10 @@ export default async function UnitsPage() {
         <div className="grid grid-2">
           {roots.map((root) => (
             <Card key={root.id} title={root.displayName}>
-              <a className="tree-node" href={`/jednostki/${root.id}`}>
+              <Link className="tree-node" href={`/jednostki/${root.id}`}>
                 <strong>{root.displayName}</strong>
                 <StatusBadge dictionary="unitStatus" value={root.status} />
-              </a>
+              </Link>
               <Branch units={units} parentId={root.id} />
               {units.filter((u) => u.parentId === root.id).length === 0 && (
                 <p className="small muted" style={{ marginTop: 'var(--space-3)' }}>
@@ -110,7 +111,7 @@ export default async function UnitsPage() {
                 {units.map((u) => (
                   <tr key={u.id}>
                     <td>
-                      <a href={`/jednostki/${u.id}`}>{u.displayName}</a>
+                      <Link href={`/jednostki/${u.id}`}>{u.displayName}</Link>
                     </td>
                     <td className="small">{text('unitType', u.type)}</td>
                     <td>

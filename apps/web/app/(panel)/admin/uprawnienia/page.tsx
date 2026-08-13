@@ -5,6 +5,7 @@
  * (§10.2): zasięg władzy NIE jest funkcją odległości w drzewie. Komendant
  * chorągwi ma hufce w poddrzewie, a mimo to standardowo nie powołuje drużyn.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { Alert, Card, Empty, PageHeader } from '../../../components/ui';
 
@@ -44,9 +45,9 @@ export default async function PermissionsPage({
         title="Uprawnienia efektywne"
         subtitle="Co dana osoba może zrobić w danej jednostce i dlaczego"
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 

@@ -8,6 +8,7 @@
  * Wycofanie się z wyczynu jest akcją dozwoloną i NIEOCENIAJĄCĄ (§12.2) —
  * prezentujemy je neutralnie, bez ostrzeżeń i bez czerwieni.
  */
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { apiSafe } from '../../../../lib/api';
 import { approveFeat, submitRequirement, verifyRequirement, withdrawFeat } from '../../../actions';
@@ -68,13 +69,13 @@ export default async function ProgressionCardPage({ params }: { params: Promise<
         actions={
           <>
             {data.person && (
-              <a className="btn" href={`/czlonkowie/${data.person.id}`}>
+              <Link className="btn" href={`/czlonkowie/${data.person.id}`}>
                 Profil harcerza
-              </a>
+              </Link>
             )}
-            <a className="btn" href="/progresja">
+            <Link className="btn" href="/progresja">
               Wróć do progresji
-            </a>
+            </Link>
           </>
         }
       />

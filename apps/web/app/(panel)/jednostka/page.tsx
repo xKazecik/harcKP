@@ -5,6 +5,7 @@
  * planie pracy — i sam decyduje o publikacji, bez akceptacji jednostki
  * nadrzędnej. Publikowane są WYŁĄCZNIE dane jednostki, nigdy dane osobowe.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
@@ -74,9 +75,9 @@ export default async function UnitPage() {
             title="Brak aktywnej jednostki"
             hint="Wybierz jednostkę przełącznikiem w lewym panelu albo utwórz pierwszą jednostkę w strukturze."
             action={
-              <a className="btn btn-primary" href="/jednostki/nowa">
+              <Link className="btn btn-primary" href="/jednostki/nowa">
                 Utwórz jednostkę
-              </a>
+              </Link>
             }
           />
         </Card>
@@ -94,12 +95,12 @@ export default async function UnitPage() {
         subtitle={`${text('unitType', u.type)} · ${text('branch', u.branch)}`}
         actions={
           <>
-            <a className="btn" href="/czlonkowie">
+            <Link className="btn" href="/czlonkowie">
               Skład jednostki
-            </a>
-            <a className="btn" href="/rozkazy">
+            </Link>
+            <Link className="btn" href="/rozkazy">
               Rozkazy
-            </a>
+            </Link>
           </>
         }
       />
@@ -142,7 +143,7 @@ export default async function UnitPage() {
             <ul className="stack-sm" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {ctx.leadership.map((l) => (
                 <li key={l.personId} className="spread">
-                  <a href={`/czlonkowie/${l.personId}`}>{l.fullName}</a>
+                  <Link href={`/czlonkowie/${l.personId}`}>{l.fullName}</Link>
                   <span className="row" style={{ gap: 4 }}>
                     {l.isActing && <span className="badge badge-warning">p.o.</span>}
                     {l.isActing && !l.guardianInstructorId && (
@@ -177,7 +178,7 @@ export default async function UnitPage() {
                 {ctx.children.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <a href={`/jednostki/${c.id}`}>{c.displayName}</a>
+                      <Link href={`/jednostki/${c.id}`}>{c.displayName}</Link>
                     </td>
                     <td className="small">{text('unitType', c.type)}</td>
                     <td>

@@ -5,7 +5,6 @@
  * jest na stan 31 grudnia i dotyczy jednostek. Nie łączymy ich w jeden
  * formularz ani z planem pracy (§21).
  */
-import { apiSafe } from '../../../lib/api';
 import { openCensus, submitCensus } from '../../actions';
 import { ActionForm, Checkbox, InlineAction, Select } from '../../components/action-form';
 import { Alert, Card, PageHeader } from '../../components/ui';

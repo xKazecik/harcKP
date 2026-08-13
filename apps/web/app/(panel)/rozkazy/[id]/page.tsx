@@ -4,6 +4,7 @@
  * Każda pozycja to wybór typu, podmiotu i szczegółów. Katalog typów odpowiada
  * tabeli z §11.2; kompetencję do konkretnego typu sprawdza API przy dodawaniu.
  */
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { apiSafe } from '../../../../lib/api';
 import { getActiveUnitId } from '../../../../lib/context';
@@ -107,9 +108,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         subtitle={`${order.place}, ${date(order.issuedAt)}`}
         actions={
           <>
-            <a className="btn" href="/rozkazy">
+            <Link className="btn" href="/rozkazy">
               Wróć do listy
-            </a>
+            </Link>
             {isDraft && (
               <InlineAction
                 action={publishOrder}
@@ -213,11 +214,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                     </td>
                     <td className="small">
                       {it.subjectPersonId ? (
-                        <a href={`/czlonkowie/${it.subjectPersonId}`}>
+                        <Link href={`/czlonkowie/${it.subjectPersonId}`}>
                           {members.find((m) => m.id === it.subjectPersonId)
                             ? `${members.find((m) => m.id === it.subjectPersonId)!.lastName} ${members.find((m) => m.id === it.subjectPersonId)!.firstName}`
                             : 'osoba'}
-                        </a>
+                        </Link>
                       ) : (
                         <span className="muted">—</span>
                       )}

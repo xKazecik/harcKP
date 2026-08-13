@@ -4,6 +4,7 @@
  * Numeracja jest per jednostka i rok, wg konfigurowalnego wzorca `L. {n}/{rok}`.
  * Po utworzeniu szkicu przechodzi się do mapowania pozycji.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { requireSession } from '../../../../lib/session';
 import { getActiveUnitId } from '../../../../lib/context';
@@ -38,9 +39,9 @@ export default async function NewOrderPage() {
         title="Nowy rozkaz"
         subtitle="Krok 1 z 2 — nagłówek rozkazu"
         actions={
-          <a className="btn" href="/rozkazy">
+          <Link className="btn" href="/rozkazy">
             Wróć do listy
-          </a>
+          </Link>
         }
       />
 

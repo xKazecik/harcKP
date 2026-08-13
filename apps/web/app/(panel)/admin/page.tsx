@@ -1,6 +1,7 @@
 /**
  * Panel administracyjny (§18) — rozdzielacz do sekcji.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { Card, PageHeader, Stat } from '../../components/ui';
 
@@ -61,9 +62,9 @@ export default async function AdminPage() {
         title="Panel administracyjny"
         subtitle="Konfiguracja, słowniki, uprawnienia i rejestry"
         actions={
-          <a className="btn" href="/dokumenty">
+          <Link className="btn" href="/dokumenty">
             Dokumentacja
-          </a>
+          </Link>
         }
       />
 

@@ -5,6 +5,7 @@
  * drużynowy i hufcowy nie przyjmują instruktorów. Formularz jest dostępny,
  * ale decyzję podejmuje API: brak kompetencji kończy się odmową.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { createInstructor } from '../../../actions';
 import { ActionForm, Field, Select } from '../../../components/action-form';
@@ -32,9 +33,9 @@ export default async function NewInstructorPage() {
         title="Przyjmij instruktora"
         subtitle="Zakłada profil osoby i wpis na listę instruktorską"
         actions={
-          <a className="btn" href="/instruktorzy">
+          <Link className="btn" href="/instruktorzy">
             Wróć do wykazu
-          </a>
+          </Link>
         }
       />
 
@@ -44,9 +45,9 @@ export default async function NewInstructorPage() {
             Przynależność instruktorska jest zawsze do konkretnej chorągwi, więc bez niej nie da
             się przyjąć instruktora. Utwórz najpierw chorągiew w sekcji Jednostki.
           </Alert>
-          <a className="btn btn-primary" href="/jednostki/nowa">
+          <Link className="btn btn-primary" href="/jednostki/nowa">
             Utwórz chorągiew
-          </a>
+          </Link>
         </Card>
       ) : (
         <div className="grid grid-2">

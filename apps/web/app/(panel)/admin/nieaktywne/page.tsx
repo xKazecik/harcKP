@@ -5,6 +5,7 @@
  * „przywróć z poprzednim adresem" jednym kliknięciem. Jeśli podany adres jest
  * identyczny z historycznym i nadal wolny, wymagane jest jawne potwierdzenie.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { restorePerson } from '../../../actions';
 import { ActionForm, Checkbox, Field } from '../../../components/action-form';
@@ -32,9 +33,9 @@ export default async function ArchivedPage() {
         title="Nieaktywne profile"
         subtitle={`${rows.length} profili archiwalnych`}
         actions={
-          <a className="btn" href="/admin">
+          <Link className="btn" href="/admin">
             Wróć do panelu
-          </a>
+          </Link>
         }
       />
 
@@ -67,9 +68,9 @@ export default async function ArchivedPage() {
                 {rows.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <a href={`/czlonkowie/${p.id}`}>
+                      <Link href={`/czlonkowie/${p.id}`}>
                         {p.lastName} {p.firstName}
-                      </a>
+                      </Link>
                     </td>
                     <td className="small mono">{orDash(p.historicalEmail)}</td>
                     <td className="small">{date(p.archivedAt)}</td>

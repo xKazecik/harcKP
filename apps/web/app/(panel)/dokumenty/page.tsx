@@ -4,6 +4,7 @@
  * Pliki pochodzą z katalogu `docs/` w repozytorium — są wersjonowane razem
  * z kodem, więc opis nie rozjeżdża się z zachowaniem systemu.
  */
+import Link from 'next/link';
 import { readdir } from 'node:fs/promises';
 import { Card, Empty, PageHeader } from '../../components/ui';
 import { DOCS_DIR, DOC_TITLES } from './docs';
@@ -39,13 +40,13 @@ export default async function DocsPage() {
             const slug = f.replace(/\.md$/, '');
             const meta = DOC_TITLES[slug];
             return (
-              <a key={f} href={`/dokumenty/${slug}`} className="stat" style={{ gap: 'var(--space-2)' }}>
+              <Link key={f} href={`/dokumenty/${slug}`} className="stat" style={{ gap: 'var(--space-2)' }}>
                 <span style={{ fontSize: 22 }} aria-hidden>
                   {meta?.icon ?? '📄'}
                 </span>
                 <strong>{meta?.title ?? slug}</strong>
                 <span className="stat-hint">{meta?.desc ?? 'Dokument projektowy.'}</span>
-              </a>
+              </Link>
             );
           })}
         </div>

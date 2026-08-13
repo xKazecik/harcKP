@@ -6,6 +6,7 @@
  * świadomie oddzielne — wędrownik to poziom metodyczny uczestnika, harcerz
  * starszy to kategoria członkostwa osoby pełnoletniej (§7.1). Nie mieszamy ich.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { Card, Empty, PageHeader, Stat, StatusBadge } from '../../components/ui';
 import { date, orDash } from '../../../lib/format';
@@ -51,9 +52,9 @@ export default async function InstructorsPage({
         title="Instruktorzy"
         subtitle={`${rows.length} osób w wykazie`}
         actions={
-          <a className="btn btn-primary" href="/instruktorzy/nowy">
+          <Link className="btn btn-primary" href="/instruktorzy/nowy">
             Przyjmij instruktora
-          </a>
+          </Link>
         }
       />
 
@@ -102,9 +103,9 @@ export default async function InstructorsPage({
           Filtruj
         </button>
         {(listType || rank) && (
-          <a className="btn btn-ghost" href="/instruktorzy">
+          <Link className="btn btn-ghost" href="/instruktorzy">
             Wyczyść
-          </a>
+          </Link>
         )}
       </form>
 
@@ -115,9 +116,9 @@ export default async function InstructorsPage({
             title="Brak instruktorów w wykazie"
             hint="Profil instruktorski powstaje po przyznaniu stopnia instruktorskiego i wpisaniu na listę przez zwierzchnika. Stopnie instruktorskie są zastrzeżone dla poziomu chorągwi i wyżej — drużynowy ani hufcowy ich nie przyznaje."
             action={
-              <a className="btn btn-primary" href="/instruktorzy/nowy">
+              <Link className="btn btn-primary" href="/instruktorzy/nowy">
                 Przyjmij pierwszego instruktora
-              </a>
+              </Link>
             }
           />
         ) : (
@@ -138,9 +139,9 @@ export default async function InstructorsPage({
                 {rows.map((r) => (
                   <tr key={r.personId}>
                     <td>
-                      <a href={`/czlonkowie/${r.personId}`}>
+                      <Link href={`/czlonkowie/${r.personId}`}>
                         {r.lastName} {r.firstName}
-                      </a>
+                      </Link>
                       {r.email && <div className="xs muted">{r.email}</div>}
                     </td>
                     <td>

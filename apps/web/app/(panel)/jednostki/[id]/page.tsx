@@ -1,6 +1,7 @@
 /**
  * Podgląd dowolnej jednostki w strukturze — także spoza aktywnego kontekstu.
  */
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { apiSafe } from '../../../../lib/api';
 import { Card, DefinitionList, Empty, PageHeader, Stat, StatusBadge } from '../../../components/ui';
@@ -42,9 +43,9 @@ export default async function UnitDetailPage({ params }: { params: Promise<{ id:
           .filter(Boolean)
           .join(' · ')}
         actions={
-          <a className="btn" href="/jednostki">
+          <Link className="btn" href="/jednostki">
             Wróć do struktury
-          </a>
+          </Link>
         }
       />
 
@@ -90,7 +91,7 @@ export default async function UnitDetailPage({ params }: { params: Promise<{ id:
             <ul className="stack-sm" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {ctx.leadership.map((l) => (
                 <li key={l.personId} className="spread">
-                  <a href={`/czlonkowie/${l.personId}`}>{l.fullName}</a>
+                  <Link href={`/czlonkowie/${l.personId}`}>{l.fullName}</Link>
                   {l.isActing && <span className="badge badge-warning">p.o.</span>}
                 </li>
               ))}
@@ -115,7 +116,7 @@ export default async function UnitDetailPage({ params }: { params: Promise<{ id:
                   {ctx.children.map((c) => (
                     <tr key={c.id}>
                       <td>
-                        <a href={`/jednostki/${c.id}`}>{c.displayName}</a>
+                        <Link href={`/jednostki/${c.id}`}>{c.displayName}</Link>
                       </td>
                       <td className="small">{text('unitType', c.type)}</td>
                       <td>

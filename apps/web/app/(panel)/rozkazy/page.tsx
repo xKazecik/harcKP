@@ -5,6 +5,7 @@
  * Błędy prostuje się osobnym rozkazem sprostowującym, który generuje operacje
  * kompensujące; historia nigdy nie jest kasowana.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
@@ -47,9 +48,9 @@ export default async function OrdersPage() {
         subtitle={unitName}
         actions={
           activeUnitId && (
-            <a className="btn btn-primary" href="/rozkazy/nowy">
+            <Link className="btn btn-primary" href="/rozkazy/nowy">
               Nowy rozkaz
-            </a>
+            </Link>
           )
         }
       />
@@ -67,9 +68,9 @@ export default async function OrdersPage() {
             title="Jednostka nie wydała jeszcze rozkazu"
             hint="Rozkaz dokumentuje mianowania, przyjęcia, stopnie, sprawności, pochwały i kary. Utwórz szkic, dodaj do niego pozycje, a potem opublikuj — dopiero publikacja wywołuje skutki ewidencyjne."
             action={
-              <a className="btn btn-primary" href="/rozkazy/nowy">
+              <Link className="btn btn-primary" href="/rozkazy/nowy">
                 Utwórz pierwszy rozkaz
-              </a>
+              </Link>
             }
           />
         ) : (
@@ -88,9 +89,9 @@ export default async function OrdersPage() {
                 {orders.map((o) => (
                   <tr key={o.id}>
                     <td>
-                      <a href={`/rozkazy/${o.id}`}>
+                      <Link href={`/rozkazy/${o.id}`}>
                         <strong>{o.number}</strong>
-                      </a>
+                      </Link>
                     </td>
                     <td className="small">{date(o.issuedAt)}</td>
                     <td className="small">{o.place}</td>

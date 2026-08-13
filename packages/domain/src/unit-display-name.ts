@@ -52,8 +52,8 @@ function typeLabel(type: UnitType, branch: Branch): string {
  * ręcznie.
  *
  * @param parts - składowe nazwy
- * @returns np. `1 Sucholeska Drużyna Harcerzy „Grań" im. rtm. Witolda Pileckiego`
- * @remarks Wzorzec: `{number} {localityName} {typeLabel} „{properName}" im. {patron}`,
+ * @returns np. `1 Sucholeska Drużyna Harcerzy „Grań” im. rtm. Witolda Pileckiego`
+ * @remarks Wzorzec: `{number} {localityName} {typeLabel} „{properName}” im. {patron}`,
  * z pominięciem członów pustych.
  */
 export function unitDisplayName(parts: UnitNameParts): string {

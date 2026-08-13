@@ -4,12 +4,13 @@
  * Kolejka zgłoszeń zbiera wymagania w stanie SUBMITTED z całej jednostki:
  * harcerz zgłasza wykonanie z komentarzem, drużynowy zalicza albo odsyła.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
 import { startProgression, verifyRequirement } from '../../actions';
 import { ActionForm, InlineAction, Select } from '../../components/action-form';
-import { Card, Empty, PageHeader, Progress, StatusBadge } from '../../components/ui';
+import { Card, Empty, PageHeader, StatusBadge } from '../../components/ui';
 import { dateTime } from '../../../lib/format';
 import { labelFor, progressionLabels } from '../../../lib/dictionaries';
 
@@ -116,9 +117,9 @@ export default async function ProgressionPage() {
                       zgłoszone {dateTime(r.submittedAt)} · <code className="mono">{r.code}</code>
                     </span>
                     <span className="row" style={{ gap: 6 }}>
-                      <a className="btn btn-sm" href={`/progresja/${r.instanceId}`}>
+                      <Link className="btn btn-sm" href={`/progresja/${r.instanceId}`}>
                         Karta
-                      </a>
+                      </Link>
                       <InlineAction
                         action={verifyRequirement}
                         label="Zalicz"
@@ -199,9 +200,9 @@ export default async function ProgressionPage() {
                 {withCards.map((m) => (
                   <tr key={m.id}>
                     <td>
-                      <a href={`/czlonkowie/${m.id}`}>
+                      <Link href={`/czlonkowie/${m.id}`}>
                         {m.lastName} {m.firstName}
-                      </a>
+                      </Link>
                     </td>
                     <td>
                       <strong>{labelFor(labels, m.openCard!.targetCode)}</strong>
@@ -213,9 +214,9 @@ export default async function ProgressionPage() {
                       <StatusBadge dictionary="branch" value={m.branch} />
                     </td>
                     <td>
-                      <a className="btn btn-sm" href={`/progresja/${m.openCard!.id}`}>
+                      <Link className="btn btn-sm" href={`/progresja/${m.openCard!.id}`}>
                         Otwórz kartę
-                      </a>
+                      </Link>
                     </td>
                   </tr>
                 ))}

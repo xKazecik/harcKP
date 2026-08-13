@@ -5,6 +5,7 @@
  * „nazwa". Wybór jednostki nadrzędnej jest zawężany do umocowań dozwolonych
  * przez regułę hierarchii, a ostateczną walidację i tak wykonuje API.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { NewUnitForm, type ParentOption } from '../../../components/unit-form';
 import { Alert, Card, PageHeader } from '../../../components/ui';
@@ -20,9 +21,9 @@ export default async function NewUnitPage() {
         title="Nowa jednostka"
         subtitle="Nazwa powstanie automatycznie ze składowych"
         actions={
-          <a className="btn" href="/jednostki">
+          <Link className="btn" href="/jednostki">
             Wróć do struktury
-          </a>
+          </Link>
         }
       />
 
@@ -34,10 +35,10 @@ export default async function NewUnitPage() {
         <div className="stack">
           <Alert tone="info" title="Jak powstaje nazwa">
             Wzorzec to{' '}
-            <code className="mono">{'{numer} {przymiotnik} {typ} „{nazwa}" im. {patron}'}</code>,
-            z pominięciem członów pustych. Przykład: <em>1 Sucholeska Drużyna Harcerzy „Grań"
+            <code className="mono">{'{numer} {przymiotnik} {typ} „{nazwa}” im. {patron}'}</code>,
+            z pominięciem członów pustych. Przykład: <em>1 Sucholeska Drużyna Harcerzy „Grań”
             im. rtm. Witolda Pileckiego</em>. Etykieta typu odmienia się per gałąź —
-            „Drużyna Harcerek" zamiast „Drużyna Harcerzy".
+            „Drużyna Harcerek” zamiast „Drużyna Harcerzy”.
           </Alert>
 
           <Alert tone="info" title="Gdzie co można umocować">

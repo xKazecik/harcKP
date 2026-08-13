@@ -5,6 +5,7 @@
  * podsumowanie. Krok opiekuna pokazuje się przy wieku <16, ale można go
  * pominąć — drużynowy dostanie przypomnienie (decyzja 2026-07-31).
  */
+import Link from 'next/link';
 import { use, useEffect, useState } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -15,7 +16,6 @@ export default function InvitationWizard({ params }: { params: Promise<{ token: 
   const { token } = use(params);
   const [step, setStep] = useState<Step>('loading');
   const [firstName, setFirstName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
   const [consentStatus, setConsentStatus] = useState<string>('');
   const [error, setError] = useState('');
 
@@ -103,7 +103,6 @@ export default function InvitationWizard({ params }: { params: Promise<{ token: 
             e.preventDefault();
             const form = new FormData(e.currentTarget);
             const bd = String(form.get('birthDate') ?? '');
-            setBirthDate(bd);
             await post('/profile', {
               ...(bd && { birthDate: bd }),
               ...(form.get('school') && { school: String(form.get('school')) }),
@@ -162,7 +161,7 @@ export default function InvitationWizard({ params }: { params: Promise<{ token: 
               Pamiętaj: drużynowy poprosi o pozwolenie od rodzica na uczestnictwo w drużynie.
             </p>
           )}
-          <a href="/" style={{ ...btn, textDecoration: 'none', display: 'inline-block' }}>Przejdź do logowania</a>
+          <Link href="/" style={{ ...btn, textDecoration: 'none', display: 'inline-block' }}>Przejdź do logowania</Link>
         </>
       )}
     </main>

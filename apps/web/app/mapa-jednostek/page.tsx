@@ -9,6 +9,7 @@
  *
  * Publikowane są WYŁĄCZNIE dane jednostek, nigdy dane osobowe.
  */
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import maplibregl, { type Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -143,10 +144,10 @@ export default function PublicMapPage() {
   return (
     <main className="map-page">
       <header className="map-header">
-        <a href="/" className="row" style={{ gap: 8, textDecoration: 'none', color: 'var(--text)' }}>
+        <Link href="/" className="row" style={{ gap: 8, textDecoration: 'none', color: 'var(--text)' }}>
           <span aria-hidden>⚜</span>
           <strong>Mapa jednostek ZHR</strong>
-        </a>
+        </Link>
         <select
           aria-label="Filtr organizacji"
           value={branchFilter}
@@ -161,9 +162,9 @@ export default function PublicMapPage() {
           {located} z {units.length} jednostek ma podaną lokalizację
         </span>
         <span className="grow" />
-        <a className="btn btn-sm" href="/">
+        <Link className="btn btn-sm" href="/">
           Zaloguj się
-        </a>
+        </Link>
       </header>
 
       <div className="map-body">

@@ -5,6 +5,7 @@
  * Nic więcej — resztę profilu uzupełnia zapraszany w kreatorze po kliknięciu
  * w link. Jednostka i gałąź wynikają z kontekstu, nie są danymi osoby.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../../lib/api';
 import { requireSession } from '../../../../lib/session';
 import { getActiveUnitId } from '../../../../lib/context';
@@ -33,9 +34,9 @@ export default async function InvitePage() {
         title="Przyjmij do jednostki"
         subtitle="Zaproszenie e-mailem — osoba sama ustawi hasło i uzupełni profil"
         actions={
-          <a className="btn" href="/czlonkowie">
+          <Link className="btn" href="/czlonkowie">
             Wróć do listy
-          </a>
+          </Link>
         }
       />
 
@@ -45,9 +46,9 @@ export default async function InvitePage() {
             action={invitePerson}
             submitLabel="Wyślij zaproszenie"
             extraActions={
-              <a className="btn" href="/czlonkowie/bez-konta">
+              <Link className="btn" href="/czlonkowie/bez-konta">
                 Osoba nie ma e-maila
-              </a>
+              </Link>
             }
           >
             <Select

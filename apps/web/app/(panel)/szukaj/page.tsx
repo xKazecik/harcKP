@@ -1,6 +1,7 @@
 /**
  * Wyszukiwanie globalne (§16.3) — osoby w aktywnej jednostce i jednostki.
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
@@ -77,9 +78,9 @@ export default async function SearchPage({
                     {members.map((m) => (
                       <tr key={m.id}>
                         <td>
-                          <a href={`/czlonkowie/${m.id}`}>
+                          <Link href={`/czlonkowie/${m.id}`}>
                             {m.lastName} {m.firstName}
-                          </a>
+                          </Link>
                         </td>
                         <td>
                           <StatusBadge
@@ -103,7 +104,7 @@ export default async function SearchPage({
                     {matchedUnits.map((u) => (
                       <tr key={u.id}>
                         <td>
-                          <a href={`/jednostki/${u.id}`}>{u.displayName}</a>
+                          <Link href={`/jednostki/${u.id}`}>{u.displayName}</Link>
                         </td>
                         <td className="small muted">{text('unitType', u.type)}</td>
                         <td>

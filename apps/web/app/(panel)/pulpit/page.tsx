@@ -5,6 +5,7 @@
  * kadra, plan pracy) oraz liczby całej struktury (§12.5). Widok zagregowany
  * operuje wyłącznie na licznikach — bez danych osobowych (§17).
  */
+import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
 import { getActiveUnitId } from '../../../lib/context';
@@ -76,12 +77,12 @@ export default async function DashboardPage() {
         actions={
           ctx && (
             <>
-              <a className="btn" href="/czlonkowie">
+              <Link className="btn" href="/czlonkowie">
                 Członkowie
-              </a>
-              <a className="btn btn-primary" href="/rozkazy/nowy">
+              </Link>
+              <Link className="btn btn-primary" href="/rozkazy/nowy">
                 Nowy rozkaz
-              </a>
+              </Link>
             </>
           )
         }
@@ -128,9 +129,9 @@ export default async function DashboardPage() {
             <Card
               title="Kadra jednostki"
               action={
-                <a className="btn btn-sm" href="/jednostka">
+                <Link className="btn btn-sm" href="/jednostka">
                   Szczegóły jednostki
-                </a>
+                </Link>
               }
             >
               {ctx.leadership.length === 0 ? (
@@ -139,16 +140,16 @@ export default async function DashboardPage() {
                   title="Jednostka nie ma obsadzonej funkcji komendanta"
                   hint="Komendanta mianuje jednostka nadrzędna rozkazem. Do tego czasu jednostka działa bez kadry, co blokuje akcje wymagające kompetencji funkcyjnego."
                   action={
-                    <a className="btn btn-primary" href="/rozkazy/nowy">
+                    <Link className="btn btn-primary" href="/rozkazy/nowy">
                       Wydaj rozkaz mianowania
-                    </a>
+                    </Link>
                   }
                 />
               ) : (
                 <ul className="stack-sm" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {ctx.leadership.map((l) => (
                     <li key={l.personId} className="spread">
-                      <a href={`/czlonkowie/${l.personId}`}>{l.fullName}</a>
+                      <Link href={`/czlonkowie/${l.personId}`}>{l.fullName}</Link>
                       <span className="row">
                         {l.isActing && <span className="badge badge-warning">p.o.</span>}
                         {l.isActing && !l.guardianInstructorId && (
@@ -164,9 +165,9 @@ export default async function DashboardPage() {
             <Card
               title="Plan pracy"
               action={
-                <a className="btn btn-sm" href="/plan-pracy">
+                <Link className="btn btn-sm" href="/plan-pracy">
                   Otwórz
-                </a>
+                </Link>
               }
             >
               {ctx.stats.workPlanStatus ? (
@@ -186,9 +187,9 @@ export default async function DashboardPage() {
                   title="Brak planu pracy na ten rok harcerski"
                   hint="Plan obejmuje cele, kalendarium, planowany obóz i pole służby. Bez złożonego planu jednostka nie może przystąpić do kategoryzacji."
                   action={
-                    <a className="btn btn-primary" href="/plan-pracy">
+                    <Link className="btn btn-primary" href="/plan-pracy">
                       Rozpocznij plan
-                    </a>
+                    </Link>
                   }
                 />
               )}
@@ -202,9 +203,9 @@ export default async function DashboardPage() {
             title="Nie masz jeszcze kontekstu jednostki"
             hint="Kontekst pojawia się, gdy pełnisz funkcję w jednostce albo jesteś jej członkiem. Administrator systemu widzi wszystkie jednostki po ich utworzeniu."
             action={
-              <a className="btn btn-primary" href="/jednostki/nowa">
+              <Link className="btn btn-primary" href="/jednostki/nowa">
                 Utwórz jednostkę
-              </a>
+              </Link>
             }
           />
         </Card>

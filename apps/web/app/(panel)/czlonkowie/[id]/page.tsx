@@ -5,6 +5,7 @@
  * Dla profilu archiwalnego widok pokazuje PEŁNĄ, nieokrojoną historię (§8.3) —
  * archiwizacja nie kasuje danych, tylko wyprowadza osobę z widoków operacyjnych.
  */
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { apiSafe } from '../../../../lib/api';
 import { addGuardian, archivePerson } from '../../../actions';
@@ -93,13 +94,13 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
           .join(' · ')}
         actions={
           <>
-            <a className="btn" href="/czlonkowie">
+            <Link className="btn" href="/czlonkowie">
               Wróć do listy
-            </a>
+            </Link>
             {!isArchived && (
-              <a className="btn" href={`/progresja?person=${p.id}`}>
+              <Link className="btn" href={`/progresja?person=${p.id}`}>
                 Karty progresji
-              </a>
+              </Link>
             )}
           </>
         }
@@ -127,7 +128,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
         <Alert tone="info" title="Zaproszenie oczekuje na wykorzystanie">
           Link jest ważny do {dateTime(data.pendingInvitation.expiresAt)}, ostatnio wysłany{' '}
           {dateTime(data.pendingInvitation.lastSentAt)}. Ponowną wysyłkę i unieważnienie znajdziesz
-          w <a href="/admin/zaproszenia">panelu zaproszeń</a>.
+          w <Link href="/admin/zaproszenia">panelu zaproszeń</Link>.
         </Alert>
       )}
 
@@ -194,7 +195,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
               <ul className="stack-sm" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {data.leaderships.map((l) => (
                   <li key={`${l.unitId}-${l.validFrom}`} className="spread">
-                    <a href={`/jednostki/${l.unitId}`}>{l.unitName}</a>
+                    <Link href={`/jednostki/${l.unitId}`}>{l.unitName}</Link>
                     <span className="row">
                       {l.isActing && <span className="badge badge-warning">p.o.</span>}
                       <span className="badge badge-accent">funkcja</span>
@@ -204,7 +205,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                 ))}
                 {data.memberships.map((m) => (
                   <li key={`${m.unitId}-${m.validFrom}`} className="spread">
-                    <a href={`/jednostki/${m.unitId}`}>{m.unitName}</a>
+                    <Link href={`/jednostki/${m.unitId}`}>{m.unitName}</Link>
                     <span className="xs muted">
                       członkostwo od {date(m.validFrom)}
                       {m.validTo ? ` do ${date(m.validTo)}` : ''}
@@ -226,9 +227,9 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
               hint="Kartę otwiera się z profilu harcerza przyciskiem „rozpocznij zdobywanie stopnia”. Zestaw zadań pobiera się z aktualnej wersji regulaminu i pozostaje z nią związany do końca próby."
               action={
                 !isArchived && (
-                  <a className="btn btn-primary" href={`/progresja?person=${p.id}`}>
+                  <Link className="btn btn-primary" href={`/progresja?person=${p.id}`}>
                     Otwórz kartę
-                  </a>
+                  </Link>
                 )
               }
             />
@@ -237,9 +238,9 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
               {data.progression.map((g) => (
                 <li key={g.id}>
                   <div className="spread mb-3">
-                    <a href={`/progresja/${g.id}`}>
+                    <Link href={`/progresja/${g.id}`}>
                       <strong>{labelFor(labels, g.targetCode)}</strong>
-                    </a>
+                    </Link>
                     <span className="row" style={{ gap: 4 }}>
                       <StatusBadge dictionary="progressionKind" value={g.kind} />
                       <StatusBadge dictionary="progressionStatus" value={g.status} />

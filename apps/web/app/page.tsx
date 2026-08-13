@@ -4,6 +4,7 @@
  * Rejestracja własna jest wyłączona (§8.1) — konto zakłada komendant, dlatego
  * na tym ekranie nie ma i nie może być odnośnika „załóż konto".
  */
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '../lib/session';
 import { ThemeToggle } from './components/theme-toggle';
@@ -62,7 +63,7 @@ export default async function HomePage({
           </div>
           <div className="card-footer">
             <div className="spread">
-              <a href="/mapa-jednostek">Mapa jednostek ZHR</a>
+              <Link href="/mapa-jednostek">Mapa jednostek ZHR</Link>
               <ThemeToggle />
             </div>
           </div>
