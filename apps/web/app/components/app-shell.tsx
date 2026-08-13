@@ -102,7 +102,7 @@ export function AppShell({
             <div className="sidebar-section">{group.title}</div>
             <div className="sidebar-nav">
               {group.items.map((item) => (
-                <a
+                <Link
                   key={item.href}
                   href={item.href}
                   className="nav-item"
@@ -113,7 +113,7 @@ export function AppShell({
                     {item.icon}
                   </span>
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -155,7 +155,7 @@ export function AppShell({
                   </span>
                 )}
                 {c.href && i < breadcrumb.length - 1 ? (
-                  <a href={c.href}>{c.label}</a>
+                  <Link href={c.href}>{c.label}</Link>
                 ) : (
                   <span className="current">{c.label}</span>
                 )}

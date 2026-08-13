@@ -1,7 +1,7 @@
 /**
  * HARC Worker (§3) — kolejki BullMQ i joby cykliczne.
  *
- * Kolejki: mail (retry+DLQ), exports, google-sync (etapowo).
+ * Kolejki: mail (retry+DLQ), exports.
  * Joby cykliczne: zatarcie kar (§11.3), przypomnienia o wygasaniu weryfikacji
  * ochrony małoletnich 60/30/7 dni (§17), wygaszanie zaproszeń, przypomnienia
  * spisowe (§13.1).

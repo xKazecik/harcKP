@@ -53,8 +53,13 @@ export class AuthorizationService {
     const [person, profile, leaderships, delegations, sysadmin] = await Promise.all([
       this.prisma.person.findUnique({ where: { id: personId } }),
       this.prisma.instructorProfile.findUnique({ where: { personId } }),
+      // Tylko funkcja LEADER daje kompetencje z urzędu. Kwatermistrz, v-ce
+      // hufcowy czy przyboczny są funkcjami ewidencyjnymi — uprawnienia
+      // techniczne dostają wyłącznie przez jawną delegację (§10.4), bo „sama
+      // nazwa funkcji nie daje uprawnień". Bez tego filtra każde mianowanie
+      // byłoby cichym nadaniem władzy komendanta jednostki.
       this.prisma.unitLeadership.findMany({
-        where: { personId, OR: [{ validTo: null }, { validTo: { gt: now } }] },
+        where: { personId, roleKey: 'LEADER', OR: [{ validTo: null }, { validTo: { gt: now } }] },
       }),
       this.prisma.delegationGrant.findMany({
         where: { toPersonId: personId, revokedAt: null, expiresAt: { gt: now } },

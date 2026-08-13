@@ -42,6 +42,41 @@ Pole nadpisane przez env jest w panelu wyszarzone; zapis zwraca
 
 - Root = grupa Keycloak `/zhr_sysadmins` (claim, nie e-mail).
 - Sysadmin nie zarządza innymi sysadminami — wymuszone w domenie.
-- Tokeny Google szyfrowane AES-GCM (`ENCRYPTION_KEY`), rotacja.
+- Sekrety wrażliwe szyfrowane AES-GCM kluczem z `ENCRYPTION_KEY`, z rotacją.
 - Audit log jest append-only; eksporty danych osobowych logowane z celem.
 - Retencja: `DATA_RETENTION_MONTHS` (job czyszczący wg rejestru czynności).
+
+## Nadawanie uprawnień (§10.1, §10.4)
+
+Dwie różne rzeczy, których nie należy mylić:
+
+- **Rola administracyjna** (`SYSADMIN`, `UNIT_ADMIN`) — panel „Role i delegacje".
+  Sysadmina nadaje i odbiera wyłącznie root. Sysadmin nie może tknąć innego
+  sysadmina ani siebie; administrator jednostki działa tylko w swoim poddrzewie.
+- **Delegacja kompetencji** — pojedyncza akcja z macierzy, powierzona funkcyjnemu
+  na czas określony. Delegować można wyłącznie akcje oznaczone `delegable`
+  i tylko takie, które delegujący sam posiada **z urzędu**. Subdelegacja jest
+  zablokowana: kto ma coś z delegacji, nie przekaże tego dalej.
+
+Sama funkcja (kwatermistrz, przyboczny, członek komendy) jest wpisem
+ewidencyjnym i **nie daje żadnych uprawnień technicznych** — kompetencje
+z urzędu ma tylko `roleKey = LEADER`, czyli komendant jednostki.
+
+## Tryb roota (§10.1)
+
+Panel → „Tryb roota". Pozwala wprowadzić zmianę bezpośrednio, z pominięciem
+rozkazów i macierzy kompetencji: nadać i odebrać funkcję **bez rozkazu**,
+zmienić dowolne pola jednostki i profilu osoby.
+
+Zasady, na które warto zwrócić uwagę przy audycie:
+
+- każda operacja wymaga **powodu** i trafia do logu jako `ROOT_OVERRIDE`;
+- pominięcie walidacji (wiek, ochrona małoletnich, opiekun przy p.o.) wymaga
+  jawnej flagi `force` i jest w logu odnotowane osobno — dzięki temu widać
+  różnicę między poprawką literówki a obejściem zabezpieczenia;
+- funkcja nadana tą drogą ma puste `appointedByOrderId`, więc w historii widać,
+  które wpisy mają umocowanie w dokumencie, a które powstały interwencją;
+- **opublikowanych rozkazów nie da się edytować także w tym trybie** (§8.6) —
+  sprostowanie idzie osobnym rozkazem;
+- adresu e-mail nie zmienia się tędy — musi przejść przez `/persons/me/email-change`,
+  żeby zachować kolejność Keycloak → baza (§9.6).

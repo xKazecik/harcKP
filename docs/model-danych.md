@@ -39,4 +39,4 @@ stanów wyliczane) / `UnitCensusEntry`; `WorkPlan` (workflow + niezmienialny
 PDF); `CategorizationSheet`.
 
 **Operacje.** `AppSetting` (poziom „database" konfiguracji), `AuditLog`
-(append-only), `ExportJob`, `GoogleCalendarChannel`.
+(append-only), `ExportJob`, `EmailChangeRequest` (§9.6).

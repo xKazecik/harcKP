@@ -5,7 +5,7 @@
  * ZHR nie są tu zakodowane na sztywno — pakiet dostarcza czyste funkcje
  * operujące na danych słownikowych (§2).
  */
-export { normalizeUnitLevel } from './unit-level.js';
+export { normalizeUnitLevel, normalizeHolderLevel } from './unit-level.js';
 export type { UnitType, NormalizedUnitLevel } from './unit-level.js';
 export { unitDisplayName } from './unit-display-name.js';
 export type { Branch, UnitNameParts } from './unit-display-name.js';
@@ -27,6 +27,16 @@ export type {
   Decision,
   TargetScope,
 } from './authorization.js';
+export { canManageAdminGrant, canDelegate } from './admin-grants.js';
+export type {
+  AdminRole,
+  GrantActor,
+  GrantTarget,
+  GrantDecision,
+  GrantDenialReason,
+  DelegationRequest,
+  DelegationDenialReason,
+} from './admin-grants.js';
 export {
   canTransition,
   isPenaltyEnforceable,

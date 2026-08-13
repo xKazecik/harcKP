@@ -11,6 +11,7 @@ import {
   ProgressionController,
 } from './interface/modules.controller';
 import { AdminController, PublicMapController } from './interface/admin.controller';
+import { RootController } from './interface/root.controller';
 import { DirectoryController } from './interface/directory.controller';
 import { ConfigService } from './infrastructure/config/config.service';
 import { PrismaService } from './infrastructure/prisma/prisma.service';
@@ -18,6 +19,8 @@ import { PrismaUnitRepository } from './infrastructure/units/prisma-unit.reposit
 import { PrismaPersonRepository } from './infrastructure/persons/prisma-person.repository';
 import { PrismaInvitationRepository } from './infrastructure/persons/prisma-invitation.repository';
 import { KeycloakAdminClient } from './infrastructure/keycloak/keycloak-admin.client';
+import { PdfService } from './infrastructure/storage/pdf.service';
+import { S3StorageService } from './infrastructure/storage/s3-storage.service';
 import { CryptoTokenService, PrismaAuditLog, SmtpMailer } from './infrastructure/persons/services';
 import { UNIT_REPOSITORY } from './application/units/unit-repository.port';
 import { CreateUnitUseCase } from './application/units/create-unit.usecase';
@@ -36,9 +39,12 @@ import { InvitationAdminUseCase } from './application/persons/invitation-admin.u
 import { ArchivePersonUseCase } from './application/persons/archive-person.usecase';
 import { RestorePersonUseCase } from './application/persons/restore-person.usecase';
 import { PersonProfileUseCase } from './application/persons/person-profile.usecase';
+import { ChangeEmailUseCase } from './application/persons/change-email.usecase';
 import { InstructorsService } from './application/instructors/instructors.service';
 import { CreateInstructorUseCase } from './application/instructors/create-instructor.usecase';
 import { AuthorizationService } from './application/authorization/authorization.service';
+import { AdminGrantsUseCase } from './application/admin/admin-grants.usecase';
+import { RootOverrideUseCase } from './application/admin/root-override.usecase';
 import { OrdersService } from './application/orders/orders.service';
 import { ProgressionService } from './application/progression/progression.service';
 import {
@@ -61,12 +67,15 @@ import {
     ProgressionController,
     PlanningController,
     AdminController,
+    RootController,
     PublicMapController,
     DirectoryController,
   ],
   providers: [
     PrismaService,
     ConfigService,
+    PdfService,
+    S3StorageService,
     { provide: UNIT_REPOSITORY, useClass: PrismaUnitRepository },
     { provide: PERSON_REPOSITORY, useClass: PrismaPersonRepository },
     { provide: INVITATION_REPOSITORY, useClass: PrismaInvitationRepository },
@@ -82,9 +91,12 @@ import {
     ArchivePersonUseCase,
     RestorePersonUseCase,
     PersonProfileUseCase,
+    ChangeEmailUseCase,
     InstructorsService,
     CreateInstructorUseCase,
     AuthorizationService,
+    AdminGrantsUseCase,
+    RootOverrideUseCase,
     OrdersService,
     ProgressionService,
     InstructorCensusService,

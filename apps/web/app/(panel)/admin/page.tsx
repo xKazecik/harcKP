@@ -28,6 +28,12 @@ const SECTIONS = [
     desc: 'Wersjonowane katalogi stopni, sprawności, kompetencji i nomenklatury wraz z odwołaniem do źródłowego przepisu.',
   },
   {
+    href: '/admin/role',
+    icon: '🛡',
+    title: 'Role i delegacje',
+    desc: 'Nadawanie ról administracyjnych oraz pojedynczych kompetencji funkcyjnym. Sama funkcja nie daje uprawnień.',
+  },
+  {
     href: '/admin/uprawnienia',
     icon: '🔐',
     title: 'Uprawnienia efektywne',
@@ -50,6 +56,12 @@ const SECTIONS = [
     icon: '🧾',
     title: 'Audit log',
     desc: 'Pełny, niemodyfikowalny rejestr operacji z filtrowaniem.',
+  },
+  {
+    href: '/admin/root',
+    icon: '⚡',
+    title: 'Tryb roota',
+    desc: 'Zmiany poza normalnym trybem: funkcje bez rozkazu, edycja jednostek i profili. Tylko dla roota, każda operacja z powodem w audycie.',
   },
 ];
 

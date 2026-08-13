@@ -1,5 +1,5 @@
 {
-  "description": "Nomenklatura (§6.4): (unitType, branch, roleKey) → etykieta. Frontend nigdy nie buduje etykiet warunkami if.",
+  "description": "Nomenklatura (§6.4): (unitType, branch, roleKey) → etykieta. Frontend nigdy nie buduje etykiet warunkami if. TODO(regulamin): nazwy funkcji innych niż LEADER (DEPUTY, QUARTERMASTER, SECRETARY, BOARD_MEMBER) są zwyczajowe — do potwierdzenia w GK. Tylko LEADER daje kompetencje z macierzy; pozostałe wymagają jawnej delegacji (§10.4).",
   "entries": [
     { "unitType": "ORGANIZACJA", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Naczelnik Harcerzy" },
     { "unitType": "ORGANIZACJA", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Naczelniczka Harcerek" },
@@ -26,6 +26,37 @@
     { "unitType": "KRAG_HARCERSTWA_STARSZEGO", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Przewodniczący Kręgu" },
     { "unitType": "KRAG_HARCERSTWA_STARSZEGO", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Przewodnicząca Kręgu" },
     { "unitType": "KRAG_INSTRUKTORSKI", "branch": "HARCERZE", "roleKey": "LEADER", "label": "Przewodniczący Kręgu Instruktorskiego" },
-    { "unitType": "KRAG_INSTRUKTORSKI", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Przewodnicząca Kręgu Instruktorskiego" }
+    { "unitType": "KRAG_INSTRUKTORSKI", "branch": "HARCERKI", "roleKey": "LEADER", "label": "Przewodnicząca Kręgu Instruktorskiego" },
+
+    { "unitType": "DRUZYNA_WEDROWNICZA", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "Przyboczny" },
+    { "unitType": "DRUZYNA_WEDROWNICZA", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "Przyboczna" },
+    { "unitType": "GROMADA", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "Przyboczny" },
+    { "unitType": "GROMADA", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "Przyboczna" },
+
+    { "unitType": "HUFIEC", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "V-ce hufcowy" },
+    { "unitType": "HUFIEC", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "V-ce hufcowa" },
+    { "unitType": "HUFIEC", "branch": "HARCERZE", "roleKey": "QUARTERMASTER", "label": "Kwatermistrz Hufca" },
+    { "unitType": "HUFIEC", "branch": "HARCERKI", "roleKey": "QUARTERMASTER", "label": "Kwatermistrzyni Hufca" },
+    { "unitType": "HUFIEC", "branch": "HARCERZE", "roleKey": "SECRETARY", "label": "Sekretarz Hufca" },
+    { "unitType": "HUFIEC", "branch": "HARCERKI", "roleKey": "SECRETARY", "label": "Sekretarz Hufca" },
+    { "unitType": "HUFIEC", "branch": "HARCERZE", "roleKey": "BOARD_MEMBER", "label": "Członek Komendy Hufca" },
+    { "unitType": "HUFIEC", "branch": "HARCERKI", "roleKey": "BOARD_MEMBER", "label": "Członkini Komendy Hufca" },
+
+    { "unitType": "CHORAGIEW", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "V-ce komendant Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "V-ce komendantka Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERZE", "roleKey": "QUARTERMASTER", "label": "Kwatermistrz Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERKI", "roleKey": "QUARTERMASTER", "label": "Kwatermistrzyni Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERZE", "roleKey": "SECRETARY", "label": "Sekretarz Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERKI", "roleKey": "SECRETARY", "label": "Sekretarz Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERZE", "roleKey": "BOARD_MEMBER", "label": "Członek Komendy Chorągwi" },
+    { "unitType": "CHORAGIEW", "branch": "HARCERKI", "roleKey": "BOARD_MEMBER", "label": "Członkini Komendy Chorągwi" },
+
+    { "unitType": "ORGANIZACJA", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "Zastępca Naczelnika" },
+    { "unitType": "ORGANIZACJA", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "Zastępczyni Naczelniczki" },
+    { "unitType": "ORGANIZACJA", "branch": "HARCERZE", "roleKey": "BOARD_MEMBER", "label": "Członek Głównej Kwatery Harcerzy" },
+    { "unitType": "ORGANIZACJA", "branch": "HARCERKI", "roleKey": "BOARD_MEMBER", "label": "Członkini Głównej Kwatery Harcerek" },
+
+    { "unitType": "SZCZEP", "branch": "HARCERZE", "roleKey": "DEPUTY", "label": "V-ce szczepowy" },
+    { "unitType": "SZCZEP", "branch": "HARCERKI", "roleKey": "DEPUTY", "label": "V-ce szczepowa" }
   ]
 }

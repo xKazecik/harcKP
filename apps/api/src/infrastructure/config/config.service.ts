@@ -36,7 +36,6 @@ const DEFAULTS: Record<string, string> = {
   PUBLIC_MAP_ENABLED: 'true',
   PUBLIC_MAP_URL: '/mapa-jednostek',
   REQUIRE_UNIT_CARD_APPROVAL: 'false',
-  GOOGLE_MODE: 'DISABLED',
   EXPORT_LINK_TTL_MINUTES: '30',
   DATA_RETENTION_MONTHS: '120',
   ALLOW_REGISTRATION: 'false',

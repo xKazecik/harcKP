@@ -4,6 +4,9 @@
 import Link from 'next/link';
 import { apiSafe } from '../../../lib/api';
 import { requireSession } from '../../../lib/session';
+import { dateTime } from '../../../lib/format';
+import { cancelEmailChange, requestEmailChange } from '../../actions';
+import { ActionForm, Field, InlineAction } from '../../components/action-form';
 import { Alert, Card, DefinitionList, Empty, PageHeader, StatusBadge } from '../../components/ui';
 import { ThemeToggle } from '../../components/theme-toggle';
 
@@ -24,6 +27,13 @@ interface Me {
   units: Array<{ id: string; displayName: string; isLeader: boolean; isActing: boolean }>;
 }
 
+interface PendingEmailChange {
+  id: string;
+  newEmail: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 export default async function ProfilePage() {
   const session = await requireSession();
   const me = await apiSafe<Me>(`/directory/me?sub=${encodeURIComponent(session.sub)}`, {
@@ -31,6 +41,10 @@ export default async function ProfilePage() {
     isSysadmin: false,
     units: [],
   });
+  const pendingChange = await apiSafe<PendingEmailChange | null>(
+    '/persons/me/email-change',
+    null,
+  );
 
   return (
     <>
@@ -101,6 +115,52 @@ export default async function ProfilePage() {
         </Card>
 
         <div className="stack">
+          <Card title="Adres e-mail">
+            {me.person ? (
+              <>
+                <p className="small muted">
+                  Adresem e-mail logujesz się do systemu. Link potwierdzający wyślemy na{' '}
+                  <strong>nowy</strong> adres — do czasu kliknięcia w niego logujesz się starym,
+                  więc literówka nie odetnie Cię od konta.
+                </p>
+                {pendingChange ? (
+                  <>
+                    <Alert tone="info" title="Zmiana czeka na potwierdzenie">
+                      Wysłaliśmy link na <strong>{pendingChange.newEmail}</strong>. Ważny do{' '}
+                      {dateTime(pendingChange.expiresAt)}. Sprawdź skrzynkę, także spam.
+                    </Alert>
+                    <InlineAction
+                      action={cancelEmailChange}
+                      label="Anuluj zmianę"
+                      hidden={{}}
+                    />
+                  </>
+                ) : (
+                  <ActionForm
+                    action={requestEmailChange}
+                    submitLabel="Wyślij link potwierdzający"
+                    successHint="Sprawdź nową skrzynkę — bez kliknięcia w link nic się nie zmieni."
+                  >
+                    <Field
+                      name="newEmail"
+                      label="Nowy adres e-mail"
+                      type="email"
+                      required
+                      defaultValue=""
+                      hint={`Obecny: ${me.person.email ?? 'brak'}`}
+                    />
+                  </ActionForm>
+                )}
+              </>
+            ) : (
+              <Empty
+                icon="✉"
+                title="Brak profilu w ewidencji"
+                hint="Zmiana adresu dotyczy profilu osoby. To konto nie ma powiązanego rekordu."
+              />
+            )}
+          </Card>
+
           <Card title="Wygląd">
             <p className="small muted">
               Wybór obowiązuje natychmiast na tym urządzeniu. Tryb systemowy podąża za

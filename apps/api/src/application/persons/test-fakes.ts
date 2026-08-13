@@ -178,6 +178,16 @@ export class FakeKeycloak implements KeycloakAdminPort {
     if (u) this.users.set(id, { email: newEmail, enabled: true });
     this.calls.push(`restoreUser:${id}`);
   }
+
+  async updateEmail(id: string, newEmail: string): Promise<void> {
+    const u = this.users.get(id);
+    if (u) this.users.set(id, { email: newEmail, enabled: u.enabled });
+    this.calls.push(`updateEmail:${id}`);
+  }
+
+  async sendVerifyEmail(id: string): Promise<void> {
+    this.calls.push(`sendVerifyEmail:${id}`);
+  }
 }
 
 export class FakeMailer implements MailerPort {

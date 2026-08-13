@@ -1,6 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { ListType } from '@harc/db';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
+import { PdfService } from '../../infrastructure/storage/pdf.service.js';
+import { S3StorageService } from '../../infrastructure/storage/s3-storage.service.js';
 
 /**
  * §13 — TRZY ODRĘBNE PROCESY o różnych cyklach. Celowo trzy serwisy;
@@ -156,7 +158,13 @@ export class UnitCensusService {
 /** Plan pracy — rok harcerski 1.09–31.08 (§13.3). */
 @Injectable()
 export class WorkPlanService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(WorkPlanService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pdf: PdfService,
+    private readonly storage: S3StorageService,
+  ) {}
 
   async upsertDraft(unitId: string, scoutingYear: string, content: Record<string, unknown>) {
     const existing = await this.prisma.workPlan.findUnique({
@@ -180,10 +188,76 @@ export class WorkPlanService {
   async decide(unitId: string, scoutingYear: string, deciderPersonId: string, decision: 'APPROVED' | 'REJECTED' | 'RETURNED_FOR_CORRECTION', notes?: string) {
     const plan = await this.transition(unitId, scoutingYear, ['SUBMITTED'], decision, deciderPersonId, notes);
     if (decision === 'APPROVED') {
-      // Generowanie PDF + snapshot kalendarium (S3, niezmienialny) — job w workerze.
-      // Tu tylko oznaczenie; worker uzupełni pdfStorageKey.
+      await this.storeApprovedPdf(unitId, scoutingYear, deciderPersonId);
+      return this.prisma.workPlan.findUnique({
+        where: { unitId_scoutingYear: { unitId, scoutingYear } },
+      });
     }
     return plan;
+  }
+
+  /**
+   * Materializuje zatwierdzony plan pracy do niezmienialnego PDF-u w S3 (§13.3).
+   *
+   * @param unitId - jednostka planu
+   * @param scoutingYear - rok harcerski, np. `2026/2027`
+   * @param deciderPersonId - osoba zatwierdzająca, trafia do stopki dokumentu
+   * @remarks Snapshot powstaje w momencie zatwierdzenia i celowo NIE jest
+   * odświeżany przy późniejszych edycjach treści — zatwierdzona wersja ma
+   * pozostać niezmienna. Błąd zapisu nie cofa zatwierdzenia; plan jest
+   * zatwierdzony decyzją przełożonego, a brak kopii to usterka do ponowienia.
+   */
+  private async storeApprovedPdf(
+    unitId: string,
+    scoutingYear: string,
+    deciderPersonId: string,
+  ): Promise<void> {
+    try {
+      const plan = await this.prisma.workPlan.findUnique({
+        where: { unitId_scoutingYear: { unitId, scoutingYear } },
+      });
+      if (!plan || plan.pdfStorageKey) return;
+
+      // WorkPlan nie ma relacji do Unit — tylko skalarne unitId.
+      const unit = await this.prisma.unit.findUnique({
+        where: { id: unitId },
+        select: { localityName: true },
+      });
+
+      const content = (plan.content ?? {}) as Record<string, unknown>;
+      const asLines = (value: unknown): string[] => {
+        if (Array.isArray(value)) return value.map((v) => `• ${String(v)}`);
+        if (value == null || value === '') return ['—'];
+        return String(value).split('\n');
+      };
+
+      const pdf = await this.pdf.render({
+        title: `Plan pracy ${scoutingYear}`,
+        subtitle: unit?.localityName ?? unitId,
+        blocks: [
+          { heading: 'Cele', lines: asLines(content.goals) },
+          { heading: 'Kalendarium', lines: asLines(content.calendar) },
+          { heading: 'Planowany obóz', lines: asLines(content.camp) },
+          { heading: 'Pole służby', lines: asLines(content.service) },
+          { heading: 'Deklarowana kategoria', lines: asLines(content.declaredCategory) },
+        ],
+        footer:
+          `Zatwierdzono ${new Date().toISOString().slice(0, 10)} przez ${deciderPersonId}. ` +
+          'Kopia niezmienialna — późniejsze edycje treści nie zmieniają tego dokumentu (§13.3).',
+      });
+
+      const key = `work-plans/${scoutingYear.replace('/', '-')}/${unitId}.pdf`;
+      await this.storage.put(key, pdf, 'application/pdf');
+      await this.prisma.workPlan.update({
+        where: { unitId_scoutingYear: { unitId, scoutingYear } },
+        data: { pdfStorageKey: key },
+      });
+    } catch (err) {
+      this.logger.error(
+        `Nie udało się zapisać PDF planu pracy ${unitId}/${scoutingYear}: ${String(err)}. ` +
+          'Plan pozostaje zatwierdzony.',
+      );
+    }
   }
 
   private async transition(unitId: string, scoutingYear: string, allowedFrom: string[], to: string, deciderPersonId?: string, notes?: string) {

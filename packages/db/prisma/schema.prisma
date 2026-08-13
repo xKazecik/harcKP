@@ -209,7 +209,6 @@ model Unit {
   meetingPlace      Json? // { lat, lng, address, meetingTimes }
   locationPrecision LocationPrecision @default(EXACT)
   isPubliclyVisible Boolean           @default(false)
-  googleCalendarId  String?
   foundedByOrderId  String? // FK do Order — dodawana w etapie 6 (moduł rozkazów)
   dissolvedByOrderId String?
   createdAt         DateTime          @default(now())
@@ -350,6 +349,7 @@ model Person {
   szostkaMemberships SzostkaMembership[]
   invitations       Invitation[]       @relation("InvitationPerson")
   createdInvitations Invitation[]      @relation("InvitationCreator")
+  emailChangeRequests EmailChangeRequest[] @relation("EmailChangePerson")
   personalEvents    PersonalEventLog[]
 
   createdAt DateTime @default(now())
@@ -419,6 +419,11 @@ model UnitLeadership {
   unit                 Unit      @relation(fields: [unitId], references: [id])
   personId             String
   person               Person    @relation(fields: [personId], references: [id])
+  /// Klucz funkcji ze słownika Nomenclature: LEADER, DEPUTY, QUARTERMASTER, ...
+  /// Etykieta zależy od (unitType, branch) i NIGDY nie jest budowana w kodzie
+  /// frontendu (§6.4). Tylko LEADER daje kompetencje z macierzy — pozostałe
+  /// funkcje wymagają jawnej delegacji (§10.4).
+  roleKey              String    @default("LEADER")
   /// p.o. — starszy harcerz lub wędrownik. Gdy true: kompetencje requiresAdult
   /// niedostępne, wymagają kontrasygnaty opiekuna (pendingApproval).
   isActing             Boolean   @default(false)
@@ -430,12 +435,37 @@ model UnitLeadership {
   validTo              DateTime?
 
   @@index([unitId, validTo])
+  @@index([unitId, roleKey, validTo])
   @@index([personId])
 }
 
 // -----------------------------------------------------------------------------
 // Zaproszenia (§8.2)
 // -----------------------------------------------------------------------------
+
+/// Żądanie samodzielnej zmiany adresu e-mail (§9.6).
+///
+/// Weryfikacja idzie na NOWY adres — dopiero klik w link potwierdza, że
+/// użytkownik faktycznie go kontroluje. Stary adres pozostaje aktywny do
+/// momentu potwierdzenia, więc literówka nie odcina nikogo od logowania.
+model EmailChangeRequest {
+  id          String    @id @default(uuid())
+  /// SHA-256 tokenu — jawny token istnieje wyłącznie w linku wysłanym mailem.
+  tokenHash   String    @unique
+  personId    String
+  person      Person    @relation("EmailChangePerson", fields: [personId], references: [id])
+  /// Adres docelowy. Zajętość sprawdzana przy tworzeniu ORAZ przy potwierdzaniu —
+  /// między jednym a drugim ktoś inny mógł go zająć.
+  newEmail    String
+  previousEmail String?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  confirmedAt DateTime?
+  cancelledAt DateTime?
+
+  @@index([personId, confirmedAt])
+  @@index([expiresAt])
+}
 
 model Invitation {
   id                String    @id @default(uuid())
@@ -632,7 +662,6 @@ model Order {
   issuedAt       DateTime
   place          String
   status         OrderStatus @default(DRAFT)
-  pdfDriveFileId String?
   pdfStorageKey  String? // kopia w S3 — obowiązkowa przy publikacji
   contentText    String?
   supersededById String?
@@ -888,7 +917,6 @@ model WorkPlan {
   decidedAt         DateTime?
   returnNotes       String?
   pdfStorageKey     String? // kopia niezmienialna w S3 po zatwierdzeniu
-  pdfDriveFileId    String?
 
   @@unique([unitId, scoutingYear])
 }
@@ -909,17 +937,8 @@ model CategorizationSheet {
 }
 
 // =============================================================================
-// ETAP 9 — Google, eksporty
+// ETAP 9 — eksporty
 // =============================================================================
-
-model GoogleCalendarChannel {
-  unitId     String   @id
-  calendarId String
-  channelId  String?
-  resourceId String?
-  expiresAt  DateTime?
-  lastSyncAt DateTime?
-}
 
 enum ExportStatus {
   PENDING

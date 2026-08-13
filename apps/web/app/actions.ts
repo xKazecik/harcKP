@@ -36,6 +36,35 @@ function explain(err: unknown): string {
         return 'Osoba nie ma ważnej weryfikacji ochrony małoletnich — mianowanie jest zablokowane.';
       case 'SUBJECT_UNAVAILABLE':
         return 'Nie można wykonać akcji na profilu archiwalnym.';
+      case 'SYSADMIN_CANNOT_MANAGE_SYSADMIN':
+        return 'Sysadmin nie może nadawać ani odbierać roli sysadmina — robi to wyłącznie root.';
+      case 'CANNOT_MANAGE_OWN_GRANTS':
+        return 'Nie możesz zmieniać własnych uprawnień. Poproś o to root lub inną osobę uprawnioną.';
+      case 'OUTSIDE_ADMIN_SCOPE':
+        return 'Ta jednostka jest poza Twoim zasięgiem administracyjnym.';
+      case 'NO_ADMIN_AUTHORITY':
+        return 'Nie masz uprawnień do zarządzania rolami administracyjnymi.';
+      case 'UNIT_REQUIRED_FOR_UNIT_ADMIN':
+        return 'Rola administratora jednostki wymaga wskazania jednostki.';
+      case 'GRANT_ALREADY_ACTIVE':
+        return 'To uprawnienie już obowiązuje.';
+      case 'ACTION_NOT_DELEGABLE':
+        return 'Tej kompetencji nie da się delegować — wynika wprost z funkcji.';
+      case 'DELEGATOR_LACKS_COMPETENCE':
+        return 'Nie możesz delegować kompetencji, której sam nie masz w tej jednostce.';
+      case 'EXPIRY_REQUIRED':
+      case 'EXPIRY_IN_PAST':
+        return 'Delegacja musi mieć datę wygaśnięcia w przyszłości.';
+      case 'NOT_DELEGATION_OWNER':
+        return 'Delegację może odwołać tylko osoba, która ją nadała.';
+      case 'IDENTITY_PROVIDER_UNAVAILABLE':
+        return 'Serwer logowania jest chwilowo niedostępny, więc nic nie zostało zmienione. Twój dotychczasowy adres nadal działa — otwórz link ponownie za chwilę.';
+      case 'INVALID_OR_EXPIRED_TOKEN':
+        return 'Link jest nieprawidłowy albo stracił ważność. Zgłoś zmianę ponownie.';
+      case 'EMAIL_UNCHANGED':
+        return 'To jest Twój obecny adres — nie ma czego zmieniać.';
+      case 'PROFILE_NOT_ACTIVE':
+        return 'Zmiana adresu jest możliwa tylko dla aktywnego profilu.';
       case 'RETRY_BLOCKED':
         return 'Ponowne podejście jest zablokowane karencją po zamknięciu negatywnym.';
       default:
@@ -516,4 +545,202 @@ export async function revokeInvitation(_prev: ActionResult, fd: FormData): Promi
   }
   revalidatePath('/admin/zaproszenia');
   return { ok: true, message: 'Zaproszenie unieważnione.' };
+}
+
+/**
+ * Zgłoszenie zmiany własnego adresu e-mail (§9.6).
+ *
+ * Link potwierdzający idzie na NOWY adres — stary działa do czasu kliknięcia,
+ * więc pomyłka w pisowni nie odcina użytkownika od logowania.
+ */
+export async function requestEmailChange(
+  _prev: ActionResult,
+  fd: FormData,
+): Promise<ActionResult> {
+  try {
+    await api('/persons/me/email-change', {
+      method: 'POST',
+      body: JSON.stringify({ newEmail: str(fd, 'newEmail') }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/profil');
+  return { ok: true, message: 'Link potwierdzający wysłany na nowy adres.' };
+}
+
+/** Anulowanie oczekującego żądania zmiany adresu (§9.6). */
+export async function cancelEmailChange(
+  _prev: ActionResult,
+  _fd: FormData,
+): Promise<ActionResult> {
+  try {
+    await api('/persons/me/email-change/cancel', { method: 'POST' });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/profil');
+  return { ok: true, message: 'Zmiana adresu anulowana.' };
+}
+
+/** Nadanie roli administracyjnej (§10.1) — regułę wymusza domena, nie ten formularz. */
+export async function grantAdminRole(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  const role = str(fd, 'role');
+  try {
+    await api('/admin/admin-grants', {
+      method: 'POST',
+      body: JSON.stringify({
+        targetPersonId: str(fd, 'targetPersonId'),
+        role,
+        unitId: role === 'UNIT_ADMIN' ? opt(fd, 'unitId') : null,
+      }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/role');
+  return { ok: true, message: 'Uprawnienie nadane.' };
+}
+
+/** Odebranie roli administracyjnej — zapis `revokedAt`, rekord zostaje (§18). */
+export async function revokeAdminRole(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  try {
+    await api(`/admin/admin-grants/${str(fd, 'grantId')}/revoke`, { method: 'POST' });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/role');
+  return { ok: true, message: 'Uprawnienie odebrane.' };
+}
+
+/** Delegacja pojedynczej kompetencji funkcyjnemu (§10.4). */
+export async function grantDelegation(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  const expires = str(fd, 'expiresAt');
+  if (!expires) {
+    return {
+      ok: false,
+      message: 'Podaj datę wygaśnięcia — delegacja bezterminowa jest niedopuszczalna.',
+      fieldErrors: { expiresAt: 'Wymagane' },
+    };
+  }
+  try {
+    await api('/admin/delegations', {
+      method: 'POST',
+      body: JSON.stringify({
+        toPersonId: str(fd, 'toPersonId'),
+        action: str(fd, 'action'),
+        unitId: str(fd, 'unitId'),
+        // <input type="date"> daje samą datę — delegacja wygasa na koniec dnia.
+        expiresAt: new Date(`${expires}T23:59:59Z`).toISOString(),
+      }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/role');
+  return { ok: true, message: 'Delegacja nadana.' };
+}
+
+/** Odwołanie delegacji przed terminem (§10.4). */
+export async function revokeDelegation(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  try {
+    await api(`/admin/delegations/${str(fd, 'delegationId')}/revoke`, { method: 'POST' });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/role');
+  return { ok: true, message: 'Delegacja odwołana.' };
+}
+
+/**
+ * Tryb roota: nadanie funkcji BEZ rozkazu (§10.1).
+ *
+ * Powód jest wymagany i trafia do audit logu jako `ROOT_OVERRIDE`.
+ */
+export async function rootAppointFunction(
+  _prev: ActionResult,
+  fd: FormData,
+): Promise<ActionResult> {
+  try {
+    await api('/root/leadership', {
+      method: 'POST',
+      body: JSON.stringify({
+        unitId: str(fd, 'unitId'),
+        personId: str(fd, 'personId'),
+        roleKey: str(fd, 'roleKey') || 'LEADER',
+        isActing: fd.get('isActing') === 'on',
+        ...(opt(fd, 'guardianInstructorId') && {
+          guardianInstructorId: str(fd, 'guardianInstructorId'),
+        }),
+        reason: str(fd, 'reason'),
+        force: fd.get('force') === 'on',
+      }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/root');
+  return { ok: true, message: 'Funkcja nadana poza rozkazem. Operacja zapisana w audycie.' };
+}
+
+/** Tryb roota: zwolnienie z funkcji BEZ rozkazu (§10.1). */
+export async function rootEndFunction(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  try {
+    await api(`/root/leadership/${str(fd, 'leadershipId')}/end`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: str(fd, 'reason') || 'Zwolnienie w trybie roota' }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/root');
+  return { ok: true, message: 'Funkcja zakończona. Operacja zapisana w audycie.' };
+}
+
+/** Tryb roota: dowolna edycja jednostki (§10.1). */
+export async function rootPatchUnit(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(str(fd, 'data') || '{}') as Record<string, unknown>;
+  } catch {
+    return {
+      ok: false,
+      message: 'Pole „zmiany" musi być poprawnym JSON-em, np. {"status":"ACTIVE"}.',
+      fieldErrors: { data: 'Niepoprawny JSON' },
+    };
+  }
+  try {
+    await api(`/root/units/${str(fd, 'unitId')}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason: str(fd, 'reason'), force: fd.get('force') === 'on', data }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/root');
+  return { ok: true, message: 'Jednostka zmieniona. Operacja zapisana w audycie.' };
+}
+
+/** Tryb roota: dowolna edycja osoby (§10.1). */
+export async function rootPatchPerson(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(str(fd, 'data') || '{}') as Record<string, unknown>;
+  } catch {
+    return {
+      ok: false,
+      message: 'Pole „zmiany" musi być poprawnym JSON-em, np. {"school":"SP 12"}.',
+      fieldErrors: { data: 'Niepoprawny JSON' },
+    };
+  }
+  try {
+    await api(`/root/persons/${str(fd, 'personId')}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason: str(fd, 'reason'), force: fd.get('force') === 'on', data }),
+    });
+  } catch (err) {
+    return { ok: false, message: explain(err) };
+  }
+  revalidatePath('/admin/root');
+  return { ok: true, message: 'Profil zmieniony. Operacja zapisana w audycie.' };
 }

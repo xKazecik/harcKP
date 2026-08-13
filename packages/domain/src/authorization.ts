@@ -5,7 +5,7 @@
  * w drzewie. Każda akcja ma własny targetScope i targetTypes z macierzy
  * kompetencji (dane słownikowe), wynikające z konkretnego przepisu.
  */
-import { normalizeUnitLevel, type UnitType } from './unit-level.js';
+import { normalizeHolderLevel, normalizeUnitLevel, type UnitType } from './unit-level.js';
 import type { Branch } from './unit-display-name.js';
 import type { InstructorRank } from './instructor-supervision.js';
 
@@ -58,6 +58,29 @@ const RANK_ORDER: Record<InstructorRank, number> = {
   HARCMISTRZ: 3,
 };
 
+/**
+ * Twarde wyłączenia akcji ze względu na TYP jednostki, której akcja dotyczy (§6.3).
+ *
+ * @remarks Samodzielny zastęp jest prowadzony przez zastępowego z uprawnieniami
+ * drużynowego, ale nie prowadzi rozkazodawstwa ani kroniki jednostki.
+ * `normalizeHolderLevel` sprowadza ten typ do poziomu `DRUZYNA`, więc bez tej
+ * listy zastępowy dziedziczyłby także obie te akcje.
+ *
+ * Wyłączenie jest wiązane z ZASOBEM, nie z aktorem, i z trzech powodów:
+ * 1. obowiązuje niezależnie od tego, kto działa — także wobec hufcowego
+ *    i posiadacza delegacji, więc §6.3 nie da się obejść nadaniem uprawnienia;
+ * 2. nie odbiera nic osobie, która obok samodzielnego zastępu prowadzi zwykłą
+ *    drużynę — tam rozkaz nadal wydaje;
+ * 3. działa, zanim macierz zostanie odpytana, więc brak wiersza w słowniku nie
+ *    zamienia twardego zakazu na `ACTION_UNKNOWN`.
+ *
+ * Wykluczenie `SAMODZIELNY_ZASTEP` z `targetTypes` wiersza `ISSUE_ORDER`
+ * w słowniku zostaje jako druga, niezależna linia obrony.
+ */
+const HARD_EXCLUDED_BY_RESOURCE_TYPE: Partial<Record<UnitType, readonly string[]>> = {
+  SAMODZIELNY_ZASTEP: ['ISSUE_ORDER', 'MAINTAIN_UNIT_LOGBOOK'],
+};
+
 function scopeMatches(
   scope: TargetScope,
   holderUnit: { unitId: string },
@@ -82,9 +105,10 @@ function scopeMatches(
 /**
  * Decyzja autoryzacyjna dla (aktor, akcja, zasób).
  *
- * Kolejność (§10.2): kompetencja z urzędu/delegacji/subsydiarności →
- * targetScope TEJ akcji → targetTypes → branch → pełnoletność (p.o. →
- * pendingApproval) → ochrona małoletnich → minimalny stopień.
+ * Kolejność (§10.2): twarde wyłączenia per typ jednostki → kompetencja
+ * z urzędu/delegacji/subsydiarności → targetScope TEJ akcji → targetTypes →
+ * branch → pełnoletność (p.o. → pendingApproval) → ochrona małoletnich →
+ * minimalny stopień.
  *
  * @remarks SYSADMIN nie może zarządzać innymi sysadminami ani sobą — ta reguła
  * jest wymuszana dla akcji ADMIN_* w use case'ach; tutaj ADMIN daje dostęp
@@ -96,6 +120,13 @@ export function authorize(
   resource: ResourceContext,
   matrix: readonly CompetenceRow[],
 ): Decision {
+  // Twarde wyłączenie z §6.3 obowiązuje przed wszystkim innym — także wobec
+  // ROOT-a i SYSADMIN-a, bo dotyczy tego, czego dana JEDNOSTKA w ogóle nie
+  // prowadzi (samodzielny zastęp nie ma rozkazodawstwa ani kroniki).
+  if (HARD_EXCLUDED_BY_RESOURCE_TYPE[resource.unitType]?.includes(action)) {
+    return { allowed: false, reason: 'HARD_EXCLUDED_FOR_UNIT_TYPE' };
+  }
+
   if (actor.isRoot) return { allowed: true, basis: 'ROOT', via: 'ADMIN' };
   if (actor.isSysadmin) return { allowed: true, basis: 'SYSADMIN', via: 'ADMIN' };
 
@@ -107,7 +138,7 @@ export function authorize(
 
     // 1) kompetencja z urzędu: aktor kieruje jednostką poziomu holderLevel
     for (const led of actor.ledUnits) {
-      if (normalizeUnitLevel(led.unitType) !== normalizeUnitLevel(row.holderLevel)) continue;
+      if (normalizeHolderLevel(led.unitType) !== normalizeHolderLevel(row.holderLevel)) continue;
       if (led.branch !== resource.branch) continue; // separacja gałęzi (§10.5)
       if (!scopeMatches(row.targetScope, led, resource)) continue;
       if (

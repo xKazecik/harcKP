@@ -12,8 +12,9 @@
 import { createHash, randomBytes } from 'node:crypto';
 
 export const ISSUER_EXTERNAL =
-  process.env.KEYCLOAK_ISSUER_URL ?? 'http://localhost:8080/realms/harc';
-export const ISSUER_INTERNAL = process.env.KEYCLOAK_ISSUER_INTERNAL_URL ?? ISSUER_EXTERNAL;
+  process.env.KEYCLOAK_ISSUER_URL || 'http://localhost:8080/realms/harc';
+// `||`, nie `??`: poza Dockerem zmienna bywa obecna, ale pusta.
+export const ISSUER_INTERNAL = process.env.KEYCLOAK_ISSUER_INTERNAL_URL || ISSUER_EXTERNAL;
 export const CLIENT_ID = process.env.KEYCLOAK_WEB_CLIENT_ID ?? 'harc-web';
 export const CLIENT_SECRET = process.env.KEYCLOAK_WEB_CLIENT_SECRET ?? '';
 export const APP_URL = process.env.APP_URL ?? 'http://localhost:3000';

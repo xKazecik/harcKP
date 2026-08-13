@@ -90,6 +90,14 @@ services:
     environment:
       DATABASE_URL: postgresql://harc:harc@postgres:5432/harc
       REDIS_URL: redis://redis:6379
+      # Admin API wołane serwer→serwer po sieci compose. KEYCLOAK_ISSUER_URL
+      # jest adresem dla przeglądarki (localhost) i wewnątrz kontenera
+      # wskazywałby na samo API.
+      KEYCLOAK_ISSUER_INTERNAL_URL: http://keycloak:8080/realms/harc
+      # To samo dotyczy SMTP i S3 — w .env stoi localhost (dla uruchomienia
+      # poza Dockerem), w sieci compose usługi mają własne nazwy.
+      SMTP_HOST: mailhog
+      S3_ENDPOINT: http://minio:9000
     ports:
       - "3001:3001"
     depends_on:
@@ -99,6 +107,8 @@ services:
         condition: service_healthy
       init:
         condition: service_completed_successfully
+      keycloak:
+        condition: service_started
 
   worker:
     build:
@@ -108,6 +118,11 @@ services:
     environment:
       DATABASE_URL: postgresql://harc:harc@postgres:5432/harc
       REDIS_URL: redis://redis:6379
+      # Kolejka mailowa i eksporty działają w tej samej sieci co MailHog
+      # i MinIO (patrz api).
+      SMTP_HOST: mailhog
+      S3_ENDPOINT: http://minio:9000
+      KEYCLOAK_ISSUER_INTERNAL_URL: http://keycloak:8080/realms/harc
     depends_on:
       redis:
         condition: service_healthy

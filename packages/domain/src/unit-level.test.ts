@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeUnitLevel, type UnitType } from './unit-level.js';
+import { normalizeHolderLevel, normalizeUnitLevel, type UnitType } from './unit-level.js';
 import { unitDisplayName } from './unit-display-name.js';
 
 describe('normalizeUnitLevel (§6.1 — aliasy statutowe, twarda reguła)', () => {
@@ -27,6 +27,26 @@ describe('normalizeUnitLevel (§6.1 — aliasy statutowe, twarda reguła)', () =
     for (const t of passthrough) {
       expect(normalizeUnitLevel(t)).toBe(t);
     }
+  });
+});
+
+describe('normalizeHolderLevel (§6.3 — poziom kompetencji komendanta)', () => {
+  it('gromada, wędrownicza i samodzielny zastęp mają kompetencje poziomu drużyny', () => {
+    expect(normalizeHolderLevel('GROMADA')).toBe('DRUZYNA');
+    expect(normalizeHolderLevel('DRUZYNA_WEDROWNICZA')).toBe('DRUZYNA');
+    expect(normalizeHolderLevel('SAMODZIELNY_ZASTEP')).toBe('DRUZYNA');
+  });
+
+  it('nadal stosuje aliasy statutowe', () => {
+    expect(normalizeHolderLevel('NAMIESTNICTWO')).toBe('CHORAGIEW');
+    expect(normalizeHolderLevel('ZWIAZEK_DRUZYN')).toBe('HUFIEC');
+  });
+
+  it('NIE zastępuje normalizeUnitLevel — typy celu pozostają rozłączne', () => {
+    // Gdyby obie funkcje robiły to samo, SAMODZIELNY_ZASTEP stałby się
+    // prawidłowym celem ISSUE_ORDER i znikłoby wyłączenie z §6.3.
+    expect(normalizeUnitLevel('SAMODZIELNY_ZASTEP')).toBe('SAMODZIELNY_ZASTEP');
+    expect(normalizeUnitLevel('GROMADA')).toBe('GROMADA');
   });
 });
 

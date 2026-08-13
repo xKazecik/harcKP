@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -15,6 +16,8 @@ import type { Prisma } from '@harc/db';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import { AuthorizationService } from '../authorization/authorization.service.js';
 import { InstructorsService } from '../instructors/instructors.service.js';
+import { PdfService } from '../../infrastructure/storage/pdf.service.js';
+import { S3StorageService } from '../../infrastructure/storage/s3-storage.service.js';
 
 /** Mapowanie typu pozycji → akcja z macierzy kompetencji (§11.2). */
 const ITEM_ACTION: Record<OrderItemType, string> = {
@@ -63,10 +66,14 @@ const APPOINTMENT_TYPES: OrderItemType[] = ['APPOINT_FUNCTION'];
  */
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly authz: AuthorizationService,
     private readonly instructors: InstructorsService,
+    private readonly pdf: PdfService,
+    private readonly storage: S3StorageService,
   ) {}
 
   /** Numeracja: licznik per jednostka per rok, wzorzec "L. {n}/{rok}". */
@@ -183,7 +190,72 @@ export class OrdersService {
       }
       await tx.order.update({ where: { id: orderId }, data: { status: 'PUBLISHED' } });
     });
+
+    await this.storeOrderPdf(orderId);
     return this.prisma.order.findUnique({ where: { id: orderId }, include: { items: true } });
+  }
+
+  /**
+   * Zapisuje niezmienialną kopię rozkazu w S3 (§11.1: „kopia w S3 — obowiązkowa").
+   *
+   * @param orderId - identyfikator opublikowanego rozkazu
+   * @remarks Wykonywane PO zatwierdzeniu transakcji, nie w jej środku: zapis
+   * do S3 nie jest transakcyjny, więc trzymanie go w transakcji bazodanowej
+   * i tak nie dałoby atomowości, a wydłużałoby blokady. Gdy rozkaz ma już
+   * wgrany PDF (`pdfStorageKey`), nic nie nadpisujemy — dokument organizacji
+   * jest niezmienialny (§8.6).
+   *
+   * Błąd zapisu nie wycofuje publikacji: rozkaz jest wydany w momencie
+   * publikacji, a brak kopii to usterka techniczna do ponowienia. Zostaje
+   * odnotowany w logu i widoczny jako brak `pdfStorageKey`.
+   */
+  private async storeOrderPdf(orderId: string): Promise<void> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { orderBy: { section: 'asc' } } },
+    });
+    if (!order || order.pdfStorageKey) return;
+
+    try {
+      // Order nie ma relacji do Unit — tylko skalarne unitId.
+      const unit = await this.prisma.unit.findUnique({
+        where: { id: order.unitId },
+        select: { localityName: true },
+      });
+
+      const pdf = await this.pdf.render({
+        title: `Rozkaz ${order.number}`,
+        subtitle: `${unit?.localityName ?? ''} · ${order.place} · ${order.issuedAt
+          .toISOString()
+          .slice(0, 10)}`,
+        blocks: [
+          ...(order.contentText ? [{ lines: order.contentText.split('\n') }] : []),
+          {
+            heading: 'Pozycje rozkazu',
+            lines: order.items.map(
+              (i) =>
+                `${i.section}. ${i.type}${
+                  i.effectiveDate
+                    ? ` — z dniem ${i.effectiveDate.toISOString().slice(0, 10)}`
+                    : ''
+                }`,
+            ),
+          },
+        ],
+        footer:
+          `Dokument wygenerowany przez HARC ${new Date().toISOString().slice(0, 10)}. ` +
+          'Kopia niezmienialna — sprostowanie następuje osobnym rozkazem (§11.2).',
+      });
+
+      const key = `orders/${order.issuedAt.getFullYear()}/${order.id}.pdf`;
+      await this.storage.put(key, pdf, 'application/pdf');
+      await this.prisma.order.update({ where: { id: orderId }, data: { pdfStorageKey: key } });
+    } catch (err) {
+      this.logger.error(
+        `Nie udało się zapisać kopii PDF rozkazu ${orderId}: ${String(err)}. ` +
+          'Rozkaz pozostaje opublikowany; kopię można wygenerować ponownie.',
+      );
+    }
   }
 
   /** Skutki specyficzne — wywoływane w transakcji publikacji. */
@@ -220,6 +292,10 @@ export class OrdersService {
             data: {
               unitId: item.subjectUnitId,
               personId: item.subjectPersonId,
+              // Funkcja ze słownika Nomenclature (§6.4). Brak wartości = LEADER,
+              // czyli komendant jednostki. Tylko LEADER daje kompetencje
+              // z macierzy — pozostałe funkcje wymagają delegacji (§10.4).
+              roleKey: typeof payload.roleKey === 'string' ? payload.roleKey : 'LEADER',
               isActing: payload.isActing === true,
               guardianInstructorId: (payload.guardianInstructorId as string) ?? null,
               appointedByOrderId: item.id,
@@ -231,7 +307,14 @@ export class OrdersService {
       case 'DISMISS_FUNCTION':
         if (item.subjectPersonId && item.subjectUnitId) {
           await tx.unitLeadership.updateMany({
-            where: { personId: item.subjectPersonId, unitId: item.subjectUnitId, validTo: null },
+            where: {
+              personId: item.subjectPersonId,
+              unitId: item.subjectUnitId,
+              // Zwolnienie dotyczy konkretnej funkcji — bez tego zwolnienie
+              // z kwatermistrzostwa zamykałoby też funkcję komendanta.
+              roleKey: typeof payload.roleKey === 'string' ? payload.roleKey : 'LEADER',
+              validTo: null,
+            },
             data: { validTo: item.effectiveDate },
           });
         }

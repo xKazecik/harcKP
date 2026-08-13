@@ -33,6 +33,8 @@ import {
   PersonProfileUseCase,
   type PersonWithWarnings,
 } from '../../application/persons/person-profile.usecase.js';
+import { ChangeEmailUseCase } from '../../application/persons/change-email.usecase.js';
+import { z } from 'zod';
 import { PERSON_REPOSITORY, type PersonRepository } from '../../application/persons/ports.js';
 
 /**
@@ -49,8 +51,43 @@ export class PersonsController {
     private readonly archivePerson: ArchivePersonUseCase,
     private readonly restorePerson: RestorePersonUseCase,
     private readonly profile: PersonProfileUseCase,
+    private readonly changeEmail: ChangeEmailUseCase,
     @Inject(PERSON_REPOSITORY) private readonly persons: PersonRepository,
   ) {}
+
+  /**
+   * Oczekujące żądanie zmiany własnego adresu e-mail (§9.6).
+   *
+   * @returns żądanie albo `null`, gdy żadne nie czeka na potwierdzenie
+   */
+  @Get('me/email-change')
+  pendingEmailChange(@Headers('x-person-id') actorId: string) {
+    return this.changeEmail.pending(actorId);
+  }
+
+  /**
+   * Zgłoszenie zmiany własnego adresu e-mail (§9.6).
+   *
+   * Link weryfikacyjny idzie na NOWY adres; stary działa do potwierdzenia.
+   *
+   * @throws 409 EMAIL_ALREADY_IN_USE — adres należy do aktywnego profilu
+   * @throws 400 EMAIL_UNCHANGED — podano obecny adres
+   */
+  @Post('me/email-change')
+  @HttpCode(202)
+  requestEmailChange(
+    @Headers('x-person-id') actorId: string,
+    @Body(new ZodValidationPipe(z.object({ newEmail: z.string().email() })))
+    body: { newEmail: string },
+  ) {
+    return this.changeEmail.request({ personId: actorId, newEmail: body.newEmail });
+  }
+
+  /** Anulowanie własnego oczekującego żądania zmiany adresu (§9.6). */
+  @Post('me/email-change/cancel')
+  cancelEmailChange(@Headers('x-person-id') actorId: string) {
+    return this.changeEmail.cancel(actorId);
+  }
 
   /** Formularz „Przyjmij do jednostki" — trzy pola + kontekst jednostki (§8.2). */
   @Post('invite')

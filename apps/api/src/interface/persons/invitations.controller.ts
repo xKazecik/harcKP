@@ -19,6 +19,7 @@ import {
   InvalidInvitationTokenError,
 } from '../../application/persons/accept-invitation.usecase.js';
 import { InvitationAdminUseCase } from '../../application/persons/invitation-admin.usecase.js';
+import { ChangeEmailUseCase } from '../../application/persons/change-email.usecase.js';
 import {
   INVITATION_REPOSITORY,
   type InvitationRepository,
@@ -37,6 +38,7 @@ export class InvitationsController {
   constructor(
     private readonly accept: AcceptInvitationUseCase,
     private readonly admin: InvitationAdminUseCase,
+    private readonly changeEmail: ChangeEmailUseCase,
     @Inject(INVITATION_REPOSITORY) private readonly invitations: InvitationRepository,
   ) {}
 
@@ -104,6 +106,21 @@ export class InvitationsController {
   @Post('public/invitations/:token/finish')
   finish(@Param('token') token: string): Promise<{ consentStatus: string }> {
     return this.wrap(() => this.accept.finish(token));
+  }
+
+  /**
+   * Potwierdzenie zmiany adresu e-mail z linku (§9.6).
+   *
+   * Trasa jest publiczna, bo link otwiera się w skrzynce — często w innej
+   * przeglądarce niż ta z aktywną sesją. Autoryzacją jest sam token: 32 bajty
+   * losowe, w bazie wyłącznie jako hash, jednorazowy i wygasający.
+   *
+   * @throws 400 INVALID_OR_EXPIRED_TOKEN — komunikat neutralny
+   * @throws 409 EMAIL_ALREADY_IN_USE — adres zajęto między wysłaniem a kliknięciem
+   */
+  @Post('public/email-change/:token/confirm')
+  confirmEmailChange(@Param('token') token: string): Promise<{ email: string }> {
+    return this.changeEmail.confirm({ token });
   }
 
   // --- Panel komendanta ----------------------------------------------------

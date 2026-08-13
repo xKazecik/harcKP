@@ -43,6 +43,38 @@ const MATRIX: CompetenceRow[] = [
     delegable: true,
     legalBasis: 'Reg. Hufca — zatwierdzanie planów pracy',
   },
+  {
+    action: 'ADMIT_PARTICIPANT',
+    holderLevel: 'DRUZYNA',
+    targetScope: 'OWN_UNIT',
+    targetTypes: ['DRUZYNA', 'DRUZYNA_WEDROWNICZA', 'GROMADA', 'SAMODZIELNY_ZASTEP'],
+    requiresAdult: false,
+    requiresMinorProtection: false,
+    delegable: false,
+    legalBasis: 'Reg. Drużyny — przyjęcie uczestnika',
+  },
+  {
+    action: 'AWARD_ZUCH_STAR',
+    holderLevel: 'DRUZYNA',
+    targetScope: 'OWN_UNIT',
+    targetTypes: ['GROMADA'],
+    requiresAdult: false,
+    requiresMinorProtection: false,
+    delegable: false,
+    legalBasis: 'System Tęczy — gwiazdki przyznaje drużynowy gromady',
+  },
+  {
+    action: 'ISSUE_ORDER',
+    holderLevel: 'DRUZYNA',
+    targetScope: 'OWN_UNIT',
+    // SAMODZIELNY_ZASTEP celowo pominięty — druga linia obrony obok twardego
+    // wyłączenia w domenie (§6.3).
+    targetTypes: ['DRUZYNA', 'DRUZYNA_WEDROWNICZA', 'GROMADA'],
+    requiresAdult: false,
+    requiresMinorProtection: false,
+    delegable: false,
+    legalBasis: 'Reg. Drużyny — rozkaz drużynowego',
+  },
 ];
 
 const druzyna: ResourceContext = {
@@ -150,5 +182,100 @@ describe('authorize — testy §10.6 (obowiązkowe negatywne)', () => {
   it('ROOT i SYSADMIN przechodzą (zarządzanie sysadminami wymuszane osobno)', () => {
     expect(authorize(actor({ isRoot: true }), 'FOUND_UNIT', druzyna, MATRIX).allowed).toBe(true);
     expect(authorize(actor({ isSysadmin: true }), 'FOUND_UNIT', druzyna, MATRIX).allowed).toBe(true);
+  });
+});
+
+/**
+ * §6.3 — jednostki prowadzone przez funkcyjnego o kompetencjach drużynowego.
+ *
+ * Macierz nie powiela wierszy dla gromady i drużyny wędrowniczej; poziom
+ * posiadacza sprowadza `normalizeHolderLevel`. Bez tego komendanci tych
+ * jednostek nie dopasowywali ŻADNEGO wiersza i nie mogli zrobić nic.
+ */
+describe('authorize — poziom drużynowego dla gromady, wędrowniczej i samodzielnego zastępu (§6.3)', () => {
+  const gromada: ResourceContext = {
+    unitId: 'gromada-1',
+    unitType: 'GROMADA',
+    branch: 'HARCERZE',
+    parentId: 'hufiec-1',
+    ancestorIds: ['hufiec-1', 'choragiew-1', 'org-1'],
+  };
+  const wedrownicza: ResourceContext = {
+    unitId: 'wedrownicza-1',
+    unitType: 'DRUZYNA_WEDROWNICZA',
+    branch: 'HARCERZE',
+    parentId: 'hufiec-1',
+    ancestorIds: ['hufiec-1', 'choragiew-1', 'org-1'],
+  };
+  const samodzielnyZastep: ResourceContext = {
+    unitId: 'sz-1',
+    unitType: 'SAMODZIELNY_ZASTEP',
+    branch: 'HARCERZE',
+    parentId: 'hufiec-1',
+    ancestorIds: ['hufiec-1', 'choragiew-1', 'org-1'],
+  };
+
+  const lead = (unitId: string, unitType: ResourceContext['unitType']) =>
+    actor({ ledUnits: [{ unitId, unitType, branch: 'HARCERZE', isActing: false }] });
+
+  it('drużynowy gromady przyjmuje uczestnika', () => {
+    const d = authorize(lead('gromada-1', 'GROMADA'), 'ADMIT_PARTICIPANT', gromada, MATRIX);
+    expect(d.allowed).toBe(true);
+  });
+
+  it('drużynowy gromady przyznaje gwiazdkę zuchową', () => {
+    expect(
+      authorize(lead('gromada-1', 'GROMADA'), 'AWARD_ZUCH_STAR', gromada, MATRIX).allowed,
+    ).toBe(true);
+  });
+
+  it('drużynowy gromady wydaje rozkaz we własnej gromadzie', () => {
+    expect(authorize(lead('gromada-1', 'GROMADA'), 'ISSUE_ORDER', gromada, MATRIX).allowed).toBe(
+      true,
+    );
+  });
+
+  it('drużynowy drużyny wędrowniczej przyjmuje uczestnika', () => {
+    expect(
+      authorize(lead('wedrownicza-1', 'DRUZYNA_WEDROWNICZA'), 'ADMIT_PARTICIPANT', wedrownicza, MATRIX)
+        .allowed,
+    ).toBe(true);
+  });
+
+  it('NEGATYWNY: gwiazdka zuchowa tylko w gromadzie, nie w drużynie harcerzy', () => {
+    expect(authorize(druzynowy, 'AWARD_ZUCH_STAR', druzyna, MATRIX).allowed).toBe(false);
+  });
+
+  it('zastępowy samodzielnego zastępu MA uprawnienia drużynowego (przyjmuje uczestnika)', () => {
+    expect(
+      authorize(lead('sz-1', 'SAMODZIELNY_ZASTEP'), 'ADMIT_PARTICIPANT', samodzielnyZastep, MATRIX)
+        .allowed,
+    ).toBe(true);
+  });
+
+  it('NEGATYWNY §10.6: zastępowy samodzielnego zastępu NIE może wydać rozkazu', () => {
+    const d = authorize(
+      lead('sz-1', 'SAMODZIELNY_ZASTEP'),
+      'ISSUE_ORDER',
+      samodzielnyZastep,
+      MATRIX,
+    );
+    expect(d.allowed).toBe(false);
+    expect(d.allowed === false && d.reason).toBe('HARD_EXCLUDED_FOR_UNIT_TYPE');
+  });
+
+  it('NEGATYWNY §6.3: zastępowy samodzielnego zastępu NIE prowadzi kroniki jednostki', () => {
+    const d = authorize(
+      lead('sz-1', 'SAMODZIELNY_ZASTEP'),
+      'MAINTAIN_UNIT_LOGBOOK',
+      samodzielnyZastep,
+      MATRIX,
+    );
+    expect(d.allowed).toBe(false);
+    expect(d.allowed === false && d.reason).toBe('HARD_EXCLUDED_FOR_UNIT_TYPE');
+  });
+
+  it('wyłączenie dotyczy TYLKO samodzielnego zastępu — drużynowy rozkaz wydaje', () => {
+    expect(authorize(druzynowy, 'ISSUE_ORDER', druzyna, MATRIX).allowed).toBe(true);
   });
 });

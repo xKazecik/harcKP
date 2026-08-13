@@ -101,6 +101,17 @@
       "validFrom": "2025-09-01"
     },
     {
+      "action": "AWARD_ZUCH_STAR",
+      "holderLevel": "DRUZYNA",
+      "targetScope": "OWN_UNIT",
+      "targetTypes": ["GROMADA"],
+      "requiresAdult": false,
+      "requiresMinorProtection": false,
+      "delegable": false,
+      "legalBasis": "System Tęczy — gwiazdki zuchowe przyznaje drużynowy gromady (§11.2, §12.2). Poziom posiadacza sprowadzany z GROMADA do DRUZYNA przez normalizeHolderLevel. TODO(regulamin): uzupełnić §",
+      "validFrom": "2025-09-01"
+    },
+    {
       "action": "ISSUE_ORDER",
       "holderLevel": "DRUZYNA",
       "targetScope": "OWN_UNIT",

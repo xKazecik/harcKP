@@ -30,8 +30,13 @@ RUN pnpm --filter @harc/db exec prisma generate \
   && pnpm --filter @harc/api build
 
 FROM node:22-alpine AS runner
-RUN apk add --no-cache tini
-ENV NODE_ENV=production
+# font-dejavu daje TTF z pełnym zestawem polskich znaków. Wbudowane fonty
+# pdfkit (Helvetica) używają WinAnsi, w którym brakuje ł, ą, ę, ś, ż, ź, ć, ń —
+# bez osadzonego fontu generowane PDF-y miałyby dziury w tekście.
+RUN apk add --no-cache tini font-dejavu
+ENV NODE_ENV=production \
+    PDF_FONT_PATH=/usr/share/fonts/dejavu/DejaVuSans.ttf \
+    PDF_FONT_BOLD_PATH=/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf
 WORKDIR /app
 COPY --from=build /app /app
 USER node

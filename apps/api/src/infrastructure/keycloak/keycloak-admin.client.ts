@@ -17,15 +17,32 @@ export class KeycloakAdminClient implements KeycloakAdminPort {
   private accessToken: string | null = null;
   private tokenExpiresAt = 0;
 
+  /**
+   * Adres issuera używany do wywołań serwer→serwer.
+   *
+   * @remarks `KEYCLOAK_ISSUER_URL` jest adresem dla PRZEGLĄDARKI (w devie
+   * `localhost:8080`) i wewnątrz kontenera wskazywałby na sam kontener API.
+   * Dlatego kanał backchannel ma własną zmienną `KEYCLOAK_ISSUER_INTERNAL_URL`
+   * (w compose: `http://keycloak:8080/realms/harc`), analogicznie do tego, jak
+   * robi to `apps/web`. Poza kontenerami obie wartości są takie same.
+   */
+  private get issuer(): string {
+    // Celowo sprawdzamy prawdziwość, nie tylko null/undefined: w .env zmienna
+    // bywa obecna, ale pusta (poza Dockerem), a `??` przepuściłoby pusty string.
+    return (
+      process.env.KEYCLOAK_ISSUER_INTERNAL_URL ||
+      process.env.KEYCLOAK_ISSUER_URL ||
+      'http://localhost:8080/realms/harc'
+    );
+  }
+
   private get baseUrl(): string {
-    const issuer = process.env.KEYCLOAK_ISSUER_URL ?? 'http://localhost:8080/realms/harc';
     // https://host/realms/harc → https://host/admin/realms/harc
-    return issuer.replace('/realms/', '/admin/realms/');
+    return this.issuer.replace('/realms/', '/admin/realms/');
   }
 
   private get tokenUrl(): string {
-    const issuer = process.env.KEYCLOAK_ISSUER_URL ?? 'http://localhost:8080/realms/harc';
-    return `${issuer}/protocol/openid-connect/token`;
+    return `${this.issuer}/protocol/openid-connect/token`;
   }
 
   private async getToken(): Promise<string> {
@@ -136,5 +153,30 @@ export class KeycloakAdminClient implements KeycloakAdminPort {
       email: newEmail,
       emailVerified: false,
     });
+  }
+
+  /**
+   * Zmiana adresu w Keycloak (§9.6).
+   *
+   * @remarks Wykonywana PRZED zapisem w bazie aplikacji. Keycloak wymusza
+   * unikalność adresu w realmie, więc to on jest wąskim gardłem — jeśli
+   * odrzuci zmianę, w bazie nie zapisujemy niczego i użytkownik zachowuje
+   * poprzedni, działający adres logowania.
+   */
+  async updateEmail(keycloakUserId: string, newEmail: string): Promise<void> {
+    await this.request('PUT', `/users/${keycloakUserId}`, {
+      email: newEmail,
+      emailVerified: false,
+    });
+  }
+
+  /** Wysyła VERIFY_EMAIL na adres aktualnie zapisany w Keycloak (§9.6). */
+  async sendVerifyEmail(keycloakUserId: string): Promise<void> {
+    const clientId = process.env.KEYCLOAK_WEB_CLIENT_ID ?? 'harc-web';
+    await this.request(
+      'PUT',
+      `/users/${keycloakUserId}/execute-actions-email?client_id=${clientId}`,
+      ['VERIFY_EMAIL'],
+    );
   }
 }

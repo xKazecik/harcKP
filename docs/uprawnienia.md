@@ -17,6 +17,7 @@ Zasięg władzy NIE jest funkcją głębokości w drzewie (§10.2). Aliasy statu
 | `FOUND_HUFIEC` | CHORAGIEW | DIRECT_CHILDREN | HUFIEC | tak | nie | nie | Reg. Chorągwi — komendant chorągwi powołuje i rozwiązuje hufce; standardowo NIE powołuje drużyn. TODO(regulamin): uzupełnić § |
 | `ADMIT_INSTRUCTOR` | CHORAGIEW | OWN_BRANCH_ORG | — | tak | nie | nie | Reg. Służby Instruktorskiej — oś zwierzchnika, nie hierarchia jednostek. TODO(regulamin): uzupełnić § |
 | `AWARD_INSTRUCTOR_RANK` | CHORAGIEW | OWN_BRANCH_ORG | — | tak | nie | nie | Reg. stopni instruktorskich — kompetencja per stopień i organizacja w słowniku instructor_ranks; zastrzeżona dla poziomu chorągwi i wyżej. Drużynowy i hufcowy NIE mają tej akcji. |
+| `AWARD_ZUCH_STAR` | DRUZYNA | OWN_UNIT | GROMADA | nie | nie | nie | System Tęczy — gwiazdki zuchowe przyznaje drużynowy gromady (§11.2, §12.2). Poziom posiadacza sprowadzany z GROMADA do DRUZYNA przez normalizeHolderLevel. TODO(regulamin): uzupełnić § |
 | `ISSUE_ORDER` | DRUZYNA | OWN_UNIT | DRUZYNA, DRUZYNA_WEDROWNICZA, GROMADA | nie | nie | nie | Reg. Drużyny — SAMODZIELNY_ZASTEP celowo wyłączony z targetTypes (twarde wyłączenie ISSUE_ORDER i MAINTAIN_UNIT_LOGBOOK, §6.3). |
 | `ISSUE_ORDER` | HUFIEC | OWN_UNIT | HUFIEC | tak | nie | nie | Reg. Hufca — TODO(regulamin): uzupełnić § |
 | `ISSUE_ORDER` | CHORAGIEW | OWN_UNIT | CHORAGIEW | tak | nie | nie | Reg. Chorągwi — TODO(regulamin): uzupełnić § |
@@ -38,6 +39,7 @@ Zasięg władzy NIE jest funkcją głębokości w drzewie (§10.2). Aliasy statu
 - `APPOINT_UNIT_GUARDIAN` (HUFIEC)
 - `FOUND_HUFIEC` (CHORAGIEW)
 - `ADMIT_INSTRUCTOR` (CHORAGIEW)
+- `AWARD_ZUCH_STAR` (DRUZYNA)
 - `ISSUE_ORDER` (HUFIEC)
 - `ISSUE_ORDER` (CHORAGIEW)
 - `DISCIPLINE_INSTRUCTOR` (CHORAGIEW)

@@ -54,7 +54,7 @@ export const DOC_TITLES: Record<string, { title: string; desc: string; icon: str
   'model-danych': { title: 'Model danych', desc: 'Diagram encji i opis modeli.', icon: '🗃' },
   integracje: {
     title: 'Integracje',
-    desc: 'Google Drive i Calendar, S3, konfiguracja i uprawnienia.',
+    desc: 'S3/MinIO, SMTP, dwa adresy issuera Keycloak.',
     icon: '🔗',
   },
   eksport: {

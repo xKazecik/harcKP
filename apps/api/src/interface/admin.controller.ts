@@ -21,6 +21,9 @@ import {
 } from '../infrastructure/config/config.service.js';
 import { PrismaService } from '../infrastructure/prisma/prisma.service.js';
 import { AuthorizationService } from '../application/authorization/authorization.service.js';
+import { AdminGrantsUseCase } from '../application/admin/admin-grants.usecase.js';
+import { S3StorageService } from '../infrastructure/storage/s3-storage.service.js';
+import { PdfService } from '../infrastructure/storage/pdf.service.js';
 import { unitDisplayName } from '@harc/domain';
 
 @Controller('admin')
@@ -29,6 +32,9 @@ export class AdminController {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly authz: AuthorizationService,
+    private readonly grants: AdminGrantsUseCase,
+    private readonly storage: S3StorageService,
+    private readonly pdf: PdfService,
   ) {}
 
   /** Ustawienia z {value, source, isLocked} — pola env wyszarzone w UI (§5). */
@@ -68,6 +74,133 @@ export class AdminController {
     @Headers('x-root') root: string,
   ) {
     return this.authz.effectivePermissions(personId, root === 'true', unitId);
+  }
+
+  /**
+   * Macierz kompetencji jako dane (§10.2) — na potrzeby list wyboru w panelu.
+   *
+   * @returns wiersze macierzy obowiązujące na dziś, z informacją o delegowalności
+   */
+  @Get('competences')
+  async competences() {
+    const now = new Date();
+    return this.prisma.competence.findMany({
+      where: { validFrom: { lte: now }, OR: [{ validTo: null }, { validTo: { gt: now } }] },
+      orderBy: [{ action: 'asc' }, { holderLevel: 'asc' }],
+    });
+  }
+
+  /** Lista uprawnień administracyjnych — aktywne i odebrane (§18). */
+  @Get('admin-grants')
+  adminGrants(@Query('personId') personId?: string, @Query('unitId') unitId?: string) {
+    return this.prisma.adminGrant.findMany({
+      where: { ...(personId && { personId }), ...(unitId && { unitId }) },
+      orderBy: { grantedAt: 'desc' },
+      take: 200,
+    });
+  }
+
+  /**
+   * Nadanie roli administracyjnej (§10.1).
+   *
+   * @throws 403 SYSADMIN_CANNOT_MANAGE_SYSADMIN — sysadmin nie tyka sysadmina
+   * @throws 403 CANNOT_MANAGE_OWN_GRANTS — nikt poza ROOT-em nie zmienia sobie
+   * @throws 403 OUTSIDE_ADMIN_SCOPE — UNIT_ADMIN poza własnym poddrzewem
+   * @throws 400 GRANT_ALREADY_ACTIVE — uprawnienie już obowiązuje
+   */
+  @Post('admin-grants')
+  grantAdminRole(
+    @Headers('x-person-id') actorId: string,
+    @Headers('x-root') root: string,
+    @Body(
+      new ZodValidationPipe(
+        z.object({
+          targetPersonId: z.string().uuid(),
+          role: z.enum(['SYSADMIN', 'UNIT_ADMIN']),
+          unitId: z.string().uuid().nullish(),
+        }),
+      ),
+    )
+    body: { targetPersonId: string; role: 'SYSADMIN' | 'UNIT_ADMIN'; unitId?: string | null },
+  ) {
+    return this.grants.grantRole({
+      actorPersonId: actorId,
+      actorIsRoot: root === 'true',
+      targetPersonId: body.targetPersonId,
+      role: body.role,
+      unitId: body.unitId ?? null,
+    });
+  }
+
+  /** Odebranie roli administracyjnej — `revokedAt`, nigdy DELETE (§18). */
+  @Post('admin-grants/:id/revoke')
+  revokeAdminRole(
+    @Param('id') id: string,
+    @Headers('x-person-id') actorId: string,
+    @Headers('x-root') root: string,
+  ) {
+    return this.grants.revokeRole({
+      actorPersonId: actorId,
+      actorIsRoot: root === 'true',
+      grantId: id,
+    });
+  }
+
+  /** Lista delegacji kompetencji (§10.4). */
+  @Get('delegations')
+  delegations(@Query('toPersonId') toPersonId?: string, @Query('unitId') unitId?: string) {
+    return this.prisma.delegationGrant.findMany({
+      where: { ...(toPersonId && { toPersonId }), ...(unitId && { unitId }) },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    });
+  }
+
+  /**
+   * Delegacja pojedynczej kompetencji funkcyjnemu (§10.4).
+   *
+   * @throws 403 ACTION_NOT_DELEGABLE — akcja nieoznaczona jako delegowalna
+   * @throws 403 DELEGATOR_LACKS_COMPETENCE — nie można delegować cudzej władzy
+   * @throws 403 EXPIRY_REQUIRED / EXPIRY_IN_PAST — delegacja musi mieć termin
+   */
+  @Post('delegations')
+  grantDelegation(
+    @Headers('x-person-id') actorId: string,
+    @Headers('x-root') root: string,
+    @Body(
+      new ZodValidationPipe(
+        z.object({
+          toPersonId: z.string().uuid(),
+          action: z.string().min(1),
+          unitId: z.string().uuid(),
+          expiresAt: z.string().datetime(),
+        }),
+      ),
+    )
+    body: { toPersonId: string; action: string; unitId: string; expiresAt: string },
+  ) {
+    return this.grants.grantDelegation({
+      actorPersonId: actorId,
+      actorIsRoot: root === 'true',
+      toPersonId: body.toPersonId,
+      action: body.action,
+      unitId: body.unitId,
+      expiresAt: new Date(body.expiresAt),
+    });
+  }
+
+  /** Odwołanie delegacji przed terminem (§10.4). */
+  @Post('delegations/:id/revoke')
+  revokeDelegation(
+    @Param('id') id: string,
+    @Headers('x-person-id') actorId: string,
+    @Headers('x-root') root: string,
+  ) {
+    return this.grants.revokeDelegation({
+      actorPersonId: actorId,
+      actorIsRoot: root === 'true',
+      delegationId: id,
+    });
   }
 
   /** Audit log — pełny, niemodyfikowalny, z filtrowaniem (§18). */
@@ -126,11 +259,22 @@ export class AdminController {
   /** Zdrowie systemu: kolejki, migracje, synchronizacje (§18). */
   @Get('system-health')
   async systemHealth() {
-    const [pendingExports, pendingApprovals] = await Promise.all([
+    const [pendingExports, pendingApprovals, storageOk] = await Promise.all([
       this.prisma.exportJob.count({ where: { status: { in: ['PENDING', 'RUNNING'] } } }),
       this.prisma.pendingApproval.count({ where: { status: 'PENDING' } }),
+      this.storage.isHealthy(),
     ]);
-    return { database: 'ok', pendingExports, pendingApprovals, timestamp: new Date().toISOString() };
+    return {
+      database: 'ok',
+      // Magazyn plików i generowanie PDF to jedyne zależności, których awaria
+      // nie zatrzymuje aplikacji, lecz cicho psuje dokumenty — stąd w widoku
+      // zdrowia systemu (§18).
+      storage: storageOk ? 'ok' : 'niedostępny',
+      pdf: this.pdf.isAvailable() ? 'ok' : 'brak fontu (PDF_FONT_PATH)',
+      pendingExports,
+      pendingApprovals,
+      timestamp: new Date().toISOString(),
+    };
   }
 }
 

@@ -113,6 +113,16 @@ export interface KeycloakAdminPort {
   archiveUser(keycloakUserId: string, tombstoneEmail: string): Promise<void>;
   /** Przywrócenie (§8.5): enable + nowy adres, emailVerified=false. */
   restoreUser(keycloakUserId: string, newEmail: string): Promise<void>;
+  /**
+   * Zmiana adresu w Keycloak (§9.6) — wykonywana PRZED zapisem w bazie.
+   *
+   * @param keycloakUserId - identyfikator użytkownika w realmie
+   * @param newEmail - nowy adres; `emailVerified` wraca na false
+   * @throws Error gdy Keycloak odrzuci zmianę (np. adres zajęty w realmie)
+   */
+  updateEmail(keycloakUserId: string, newEmail: string): Promise<void>;
+  /** Wysyła wiadomość weryfikacyjną na aktualnie zapisany adres (§9.6). */
+  sendVerifyEmail(keycloakUserId: string): Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
