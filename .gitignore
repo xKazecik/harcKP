@@ -10,3 +10,7 @@ coverage/
 !.env.example
 /packages/db/prisma/dev.db
 .DS_Store
+
+# Artefakty tymczasowe narzędzi (trafiły raz do repo jako puste pliki _tmp_6_*)
+_tmp_*
+tmp-pdf/

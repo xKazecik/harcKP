@@ -28,6 +28,15 @@ jobs:
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
 
+      # Klient Prisma jest generowany, nie wersjonowany — bez tego kroku
+      # `@prisma/client` nie eksportuje PrismaClient ani Prisma, więc
+      # `@harc/db` nie kompiluje się i wywracają się typecheck, build i testy.
+      # Generowanie nie łączy się z bazą, więc nie potrzebuje działającego serwera.
+      - name: Generowanie klienta Prisma
+        run: pnpm --filter @harc/db exec prisma generate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
       - name: Walidacja JSON (realm, seedy)
         run: |
           node -e "JSON.parse(require('fs').readFileSync('infra/keycloak/realm-export.json','utf8')); console.log('realm OK')"
